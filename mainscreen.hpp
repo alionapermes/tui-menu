@@ -13,8 +13,19 @@
 #include "ftxui/screen/color.hpp"
 
 
-template<typename T>
+class MainScreen;
+
+typedef std::function<void(MainScreen*)> OnEnterFunctor;
+typedef void (*OnEnterFunctionPointer)(MainScreen*);
+
+template <typename T>
 concept StringLike = std::is_convertible_v<T, std::string_view>;
+
+template <typename T>
+concept OnEnterHandler = (
+    std::same_as<T, OnEnterFunctor>
+    || std::same_as<T, OnEnterFunctionPointer>
+);
 
 
 class MainScreen
@@ -25,13 +36,12 @@ public:
         friend MainScreen;
 
     public:
-        using OnEnterHandler = std::function<void(MainScreen*)>;
         using MenuItemList   = std::vector<std::string>;
-        using HandlerList    = std::vector<OnEnterHandler>;
-        using ItemsAddList   = std::vector<std::pair<
-            std::string,
-            OnEnterHandler
-        >>;
+        using HandlerList    = std::vector<OnEnterFunctor>;
+
+        template <StringLike Name, OnEnterHandler Handler>
+        using ItemsAddList   = std::vector<std::pair<Name, Handler>>;
+
 
         Menu()
         {
@@ -47,14 +57,27 @@ public:
 
         template<StringLike Name>
         void
-        addItem(Name&& item, OnEnterHandler handler)
+        addItem(Name&& item, OnEnterFunctor handler)
         {
             _items.push_back(std::forward<Name>(item));
             _handlers.push_back(handler);
         }
 
+        template<StringLike Name>
         void
-        addItems(ItemsAddList&& items)
+        addItem(Name&& item, void (*handler)(MainScreen*))
+        {
+            _items.push_back(std::forward<Name>(item));
+            _handlers.push_back([=](MainScreen* screen) {
+                handler(screen);
+            });
+        }
+
+        template <
+            OnEnterHandler Handler = OnEnterFunctionPointer,
+            StringLike Name        = std::string
+        > void
+        addItems(ItemsAddList<Name, Handler>&& items)
         {
             for (auto&& [item, handler] : items)
                 addItem(std::move(item), handler);
