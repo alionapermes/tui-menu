@@ -33,7 +33,7 @@ public:
             OnEnterHandler
         >>;
 
-        Menu(MainScreen* owner = nullptr) : _owner(owner)
+        Menu()
         {
             using namespace ftxui;
 
@@ -44,20 +44,6 @@ public:
 
             _component = ftxui::Menu(&_items, &_selected, &_option);
         }
-
-        Menu(const Menu& other) = default;
-
-        Menu(Menu&& other)
-        { *this = std::move(other); }
-
-        Menu(const Menu& other, MainScreen* screen_ptr) : _owner(screen_ptr)
-        { *this = other; }
-
-        Menu&
-        operator=(const Menu& other) = default;
-
-        Menu&
-        operator=(Menu&& other) noexcept = default;
 
         template<StringLike Name>
         void
@@ -74,10 +60,6 @@ public:
                 addItem(std::move(item), handler);
         }
 
-        ftxui::Component
-        component()
-        { return _component; }
-
     private:
         int _selected      = 0;
         MainScreen* _owner = nullptr;
@@ -90,6 +72,11 @@ public:
             auto handler = _handlers[_selected];
             handler(_owner);
         };
+
+
+        ftxui::Component
+        component()
+        { return _component; }
     };
 
 public:
@@ -105,17 +92,13 @@ private:
     Menu* _units_menu;
 
 public:
-    MainScreen() = default;
-
-    MainScreen(const std::string& title) : Title(title) {}
-
-    MainScreen(const std::string& title, Menu* commands, Menu* units)
+    MainScreen(const std::string& title, Menu* commands_ptr, Menu* units_ptr)
         : Title(title)
-        , _commands_menu(commands)
-        , _units_menu(units)
+        , _commands_menu(commands_ptr)
+        , _units_menu(units_ptr)
     {
         _commands_menu->_owner = this;
-        _units_menu->_owner = this;
+        _units_menu->_owner    = this;
     }
 
     void

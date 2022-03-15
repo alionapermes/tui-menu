@@ -33,3 +33,77 @@ make
 Находясь в tui-menu/build:  
 `./bin/menu`
 
+## API
+
+Краткое описание возможностей библиотеки
+
+### Концепты
+
+```cpp
+template<typename T>
+concept StringLike = std::is_convertible_v<T, std::string_view>;
+```
+
+`StringLike` ограничивает шаблонный параметр `T` типами,
+конвертируемыми в строковый вид
+
+### Класс MainScreen
+
+Основной класс, отвечающий за работу программы
+
+#### Публичные поля
+
+```cpp
+std::string Title;
+std::string InfoBar;
+std::string UnitName;
+std::string InputField;
+```
+
+#### Методы
+
+```cpp
+MainScreen(const std::string& title, Menu* commands, Menu* units)
+```
+
+Конструктор принимает строку для заголовка и два указателя
+на соответствующие объекты меню.
+
+---
+
+```cpp
+void
+render()
+```
+
+Метод, запускающий обработку интерфейса
+
+---
+
+### Класс Menu
+
+Класс, позволяющий управлять содержимым меню
+
+#### Типы
+
+```cpp
+using OnEnterHandler = std::function<void(MainScreen*)>;
+using MenuItemList   = std::vector<std::string>;
+using HandlerList    = std::vector<OnEnterHandler>;
+using ItemsAddList   = std::vector<std::pair<
+    std::string,
+    OnEnterHandler
+>>;
+```
+
+#### Методы
+
+```
+template<StringLike Name>
+void
+addItem(Name&& item, OnEnterHandler handler)
+```
+
+Добавление в меню нового элемента и его обработчика.  
+`OnEnterHandler` является псевдонимом типа `function<void(MainScreen*)>`
+
