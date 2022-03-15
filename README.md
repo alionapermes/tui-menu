@@ -2,7 +2,7 @@
 
 Консольный пользовательский интерфейс для управления контейнерами данных
 
-![screenshot_1](screenshot_1.png)
+![screenshot_1](images/screenshot_1.png)
 
 ## Сборка
 
