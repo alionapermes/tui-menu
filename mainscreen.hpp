@@ -2,7 +2,6 @@
 #include <functional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 #include <utility>
 
@@ -27,7 +26,6 @@ public:
 
     public:
         using OnEnterHandler = std::function<void(MainScreen*)>;
-        using HandlerMap     = std::unordered_map<int, OnEnterHandler>;
         using MenuItemList   = std::vector<std::string>;
         using HandlerList    = std::vector<OnEnterHandler>;
         using ItemsAddList   = std::vector<std::pair<
