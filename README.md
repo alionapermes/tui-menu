@@ -104,6 +104,16 @@ void
 addItem(Name&& item, OnEnterHandler handler)
 ```
 
-Добавление в меню нового элемента и его обработчика.  
-`OnEnterHandler` является псевдонимом типа `function<void(MainScreen*)>`
+Добавление в меню нового элемента и его обработчика
+
+---
+
+```
+void
+addItems(ItemsAddList&& items)
+```
+
+Добавление в меню сразу нескольких элементов и их обработчиков
+
+---
 
