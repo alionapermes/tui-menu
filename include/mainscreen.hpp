@@ -36,11 +36,11 @@ public:
         friend MainScreen;
 
     public:
-        using MenuItemList   = std::vector<std::string>;
-        using HandlerList    = std::vector<OnEnterFunctor>;
+        using MenuItemList = std::vector<std::string>;
+        using HandlerList  = std::vector<OnEnterFunctor>;
 
         template <StringLike Name, OnEnterHandler Handler>
-        using ItemsAddList   = std::vector<std::pair<Name, Handler>>;
+        using ItemsAddList = std::vector<std::pair<Name, Handler>>;
 
 
         Menu()
