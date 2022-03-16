@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <string_view>
 #include <utility>
@@ -14,6 +16,7 @@
 namespace tuim {
 
 using namespace ftxui;
+
 
 class Window
 {

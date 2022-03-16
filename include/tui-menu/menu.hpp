@@ -16,6 +16,7 @@ using namespace ftxui;
 
 class MainScreen;
 
+
 template <typename Screen = MainScreen>
 class Menu
 {
