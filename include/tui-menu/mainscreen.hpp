@@ -6,9 +6,11 @@
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/dom/elements.hpp"
+#include "ftxui/dom/node.hpp"
 
 #include "iscreen.hpp"
-#include "menu.hpp"
+#include "itemlist.hpp"
+#include "combinedcomponent.hpp"
 
 
 namespace tuim {
@@ -18,14 +20,17 @@ using namespace ftxui;
 
 class MainScreen : public IScreen
 {
+public:
+    using Menu = ItemList<MainScreen>;
+
 private:
     std::string _unit_name;
     std::string _info_bar;
-    Menu<MainScreen>* _commands_menu = nullptr;
-    Menu<MainScreen>* _units_menu    = nullptr;
+    CombinedComponent* _commands_menu = nullptr;
+    CombinedComponent* _units_menu    = nullptr;
 
 public:
-    MainScreen(Menu<MainScreen>* commands_ptr, Menu<MainScreen>* units_ptr) 
+    MainScreen(Menu* commands_ptr, Menu* units_ptr) 
         : _commands_menu(commands_ptr)
         , _units_menu(units_ptr)
     {
