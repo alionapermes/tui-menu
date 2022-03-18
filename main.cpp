@@ -11,10 +11,12 @@ int
 main()
 {
     MainScreen::Menu commands, units;
-    InputBox input_box;
+    InputBox input_box("Введите число");//, 0, 10, &isNumeric);
+    /* input_box.setPredicate(&input_box.isNumeric); */
 
     MainScreen main_screen(&commands, &units);
     InputScreen input_screen(&input_box);
+    input_screen.setIncorrectMessage("тобi пизда");
     NavScreen nav_screen;
 
     Window window("title", &main_screen);
@@ -24,6 +26,7 @@ main()
 
     commands.addItems({
         {"Добавить контейнер", [&](MainScreen* screen) {
+            input_box.clear();
             window.switchScreen(inp1);
         }},
         {"Навигация по контейнеру", [&](MainScreen* screen) {

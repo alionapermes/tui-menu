@@ -46,17 +46,16 @@ public:
         _component = ftxui::Menu(&_items, &_selected, &_option);
     }
 
-    template<StringLike Name = std::string>
     void
-    addItem(Name&& item, OnEnterFunctor<Screen> handler)
+    addItem(StringLike auto&& item, OnEnterFunctor<Screen> handler)
     {
-        _items.push_back(std::forward<Name>(item));
+        _items.push_back(std::forward<decltype(item)>(item));
         _handlers.push_back(handler);
     }
 
-    template <StringLike Name = std::string>
+    template <StringLike Text = std::string>
     void
-    addItems(ItemsAddList<Name>&& items)
+    addItems(ItemsAddList<Text>&& items)
     {
         for (auto&& [item, handler] : items)
             addItem(std::move(item), handler);

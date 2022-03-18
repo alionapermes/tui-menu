@@ -26,10 +26,9 @@ class Window
 private:
     std::string _title;
     std::vector<IScreen*> _screens;
-    Component modal, window_renderer, main_renderer;
+    Component _main_renderer;
 
     int _depth                     = 0;
-    int _screen_num                = 0;
     IScreen* _main_screen          = nullptr;
     ScreenInteractive _term_screen = ScreenInteractive::Fullscreen();
 
@@ -40,26 +39,25 @@ public:
     void
     render()
     {
-        main_renderer = Renderer(_main_screen->container(), [&] {
+        _main_renderer = Renderer(_main_screen->container(), [&] {
             return window(text(_title), _main_screen->document());
         });
 
         Component window_container = Container::Tab(
-            {main_renderer},
+            {_main_renderer},
             &_depth
         );
 
-        window_renderer = Renderer(window_container, [&] {
-            return main_renderer->Render();
+        Component window_renderer = Renderer(window_container, [&] {
+            return _main_renderer->Render();
         });
 
         _term_screen.Loop(window_renderer);
     }
 
-    template <StringLike Title>
     void
-    setTitle(Title&& title)
-    { _title = std::forward<Title>(title); }
+    setTitle(StringLike auto&& title)
+    { _title = std::forward<decltype(title)>(title); }
 
     std::string_view
     getTitle() const
@@ -72,24 +70,23 @@ public:
     void
     switchScreen(int num)
     {
-        _screen_num = num;
-        _depth = num > 0 ? 1 : 0;
+        _depth = static_cast<int>(num > 0);
 
+        Component modal = _main_renderer;
         if (_depth > 0) {
             modal = Renderer(_screens[num - 1]->container(), [&] {
                 return _screens[num - 1]->document();
             });
-        } else
-            modal = main_renderer;
+        }
 
-        Components container = {main_renderer};
-        if (modal != main_renderer)
+        Components container = {_main_renderer};
+        if (modal != _main_renderer)
             container.push_back(modal);
 
         Component window_container = Container::Tab(container, &_depth);
 
         Component renderer = Renderer(window_container, [&] {
-            Element document = main_renderer->Render();
+            Element document = _main_renderer->Render();
 
             if (_depth > 0) {
                 document = dbox({

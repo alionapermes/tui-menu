@@ -23,7 +23,7 @@ class InputScreen : public IScreen
 {
 private:
     std::string _info_bar;
-    std::string _placeholder;
+    std::string _incorrect_msg;
     InputBox<InputScreen>* _input_box = nullptr;
 
 public:
@@ -35,7 +35,10 @@ private:
     document() override
     {
         return vbox({
-            text(_info_bar) | center,
+            text(((_input_box->isCorrect() && !_input_box->content().empty())
+                ? _info_bar
+                : (_info_bar + "\n[" + _incorrect_msg + ']')
+            )) | center,
             _input_box->component()->Render() | border | flex,
             hbox({
                 _input_box->buttonOk()->Render() | flex,
@@ -61,19 +64,17 @@ public:
     getInfoBar() const
     { return _info_bar; }
 
-    template <StringLike Info>
     void
-    setInfoBar(Info&& info)
-    { _info_bar = std::forward<Info>(info); }
+    setInfoBar(StringLike auto&& text)
+    { _info_bar = std::forward<decltype(text)>(text); }
 
     std::string_view
-    getPlaceholder() const
-    { return _placeholder; }
+    getIncorrectMessage() const
+    { return _incorrect_msg; }
 
-    template <StringLike Text>
     void
-    setPlaceholder(Text&& text)
-    { _placeholder = std::forward<Text>(text); }
+    setIncorrectMessage(StringLike auto&& text)
+    { _incorrect_msg = std::forward<decltype(text)>(text); }
 };
 
 };

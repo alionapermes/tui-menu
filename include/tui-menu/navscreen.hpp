@@ -69,10 +69,9 @@ public:
     getContent() const
     { return _content; }
 
-    template <StringLike Text>
     void
-    setContent(Text&& content)
-    { _content = std::forward<Text>(content); }
+    setContent(StringLike auto&& text)
+    { _content = std::forward<decltype(text)>(text); }
 
     void
     onNext(OnEnterFunctor<NavScreen> handler)

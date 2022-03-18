@@ -38,19 +38,17 @@ public:
         _units_menu->_owner    = this;
     }
 
-    template <StringLike Info>
     void
-    setInfoBar(Info&& info)
-    { _info_bar = std::forward<Info>(info); }
+    setInfoBar(StringLike auto&& text)
+    { _info_bar = std::forward<decltype(text)>(text); }
 
     std::string_view
     getInfoBar() const
     { return _info_bar; }
 
-    template <StringLike UnitName>
     void
-    setUnitName(UnitName&& unit_name)
-    { _unit_name = std::forward<UnitName>(unit_name); }
+    setUnitName(StringLike auto&& unit_name)
+    { _unit_name = std::forward<decltype(unit_name)>(unit_name); }
 
     std::string_view
     getUnitName() const
