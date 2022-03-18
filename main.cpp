@@ -17,7 +17,7 @@ main()
     InputScreen input_screen(&input_box);
     NavScreen nav_screen;
 
-    Window window("title", &main_screen, &input_screen);
+    Window window("title", &main_screen);
     nav_screen.onExit([&](NavScreen*) { window.switchScreen(0); });
     int inp1 = window.addModal(&input_screen);
     int nav1 = window.addModal(&nav_screen);
@@ -38,7 +38,7 @@ main()
         if (!name.empty()) {
             if (!std::atoi(name.c_str())) {
                 units.addItem(name, [&](MainScreen* screen) {
-                    screen->setInfoBar(units.selected());
+                    screen->setUnitName(units.selected());
                 });
             }
             window.switchScreen(0);

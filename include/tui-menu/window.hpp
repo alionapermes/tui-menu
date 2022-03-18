@@ -26,58 +26,31 @@ class Window
 private:
     std::string _title;
     std::vector<IScreen*> _screens;
-    Components _renderers;
-
-    int _depth                         = 0;
-    IScreen* main_screen = nullptr;
-    IScreen* inp_screen  = nullptr;
-    /* Component main_renderer; */
     Component modal, window_renderer, main_renderer;
+
+    int _depth                     = 0;
+    int _screen_num                = 0;
+    IScreen* _main_screen          = nullptr;
     ScreenInteractive _term_screen = ScreenInteractive::Fullscreen();
 
 public:
-    Window(const std::string& title, MainScreen* main_screen, IScreen* ptr = nullptr) : _title(title)
-    {
-        /* auto screen = dynamic_cast<IScreen*>(main_screen); */
-
-        /* _screens.push_back(main_screen); */
-
-        this->main_screen = main_screen;
-        this->inp_screen  = ptr;
-    }
+    Window(const std::string& title, MainScreen* main_screen)
+        : _title(title), _main_screen(main_screen) {}
 
     void
     render()
     {
-        main_renderer = Renderer(main_screen->container(), [&] {
-            return window(text(_title), main_screen->document());
-        });
-        /* Component inp_renderer = Renderer(inp_screen->container(), [&] { */
-        /*     return inp_screen->document(); */
-        /* }); */
-
-
-        IScreen* modal_screen = inp_screen;
-        modal = Renderer(modal_screen->container(), [&] {
-            return modal_screen->document();
+        main_renderer = Renderer(_main_screen->container(), [&] {
+            return window(text(_title), _main_screen->document());
         });
 
         Component window_container = Container::Tab(
-            {main_renderer, modal},
+            {main_renderer},
             &_depth
         );
 
         window_renderer = Renderer(window_container, [&] {
-            Element document = main_renderer->Render();
-
-            if (_depth > 0) {
-                document = dbox({
-                    document,
-                    modal->Render() | clear_under | center
-                });
-            }
-
-            return document;
+            return main_renderer->Render();
         });
 
         _term_screen.Loop(window_renderer);
@@ -97,21 +70,23 @@ public:
     { ::exit(0); }
 
     void
-    switchScreen(int depth)
+    switchScreen(int num)
     {
-        _depth = depth;
+        _screen_num = num;
+        _depth = num > 0 ? 1 : 0;
 
-        if (depth > 0) {
-            modal = Renderer(_screens[depth - 1]->container(), [&] {
-                return _screens[depth - 1]->document();
+        if (_depth > 0) {
+            modal = Renderer(_screens[num - 1]->container(), [&] {
+                return _screens[num - 1]->document();
             });
         } else
             modal = main_renderer;
 
-        Component window_container = Container::Tab(
-            {main_renderer, modal},
-            &_depth
-        );
+        Components container = {main_renderer};
+        if (modal != main_renderer)
+            container.push_back(modal);
+
+        Component window_container = Container::Tab(container, &_depth);
 
         Component renderer = Renderer(window_container, [&] {
             Element document = main_renderer->Render();
@@ -126,8 +101,6 @@ public:
             return document;
         });
 
-        /* _term_screen.Clear(); */
-        /* _term_screen.ResetPosition(); */
         _term_screen.Loop(renderer);
     }
 
