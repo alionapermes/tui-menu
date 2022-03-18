@@ -25,7 +25,7 @@ private:
     using MenuItemList = std::vector<std::string>;
     using HandlerList  = std::vector<OnEnterFunctor<Screen>>;
 
-    int _selected  = 0;
+    int _selected = 0;
     MenuItemList _items;
     HandlerList _handlers;
     Component _component;
@@ -68,8 +68,12 @@ public:
         _items.erase(iter);
     }
 
-    std::string
+    int
     selected() const
+    { return _selected; }
+
+    std::string
+    selectedName() const
     { return _items[_selected]; }
 
 private:

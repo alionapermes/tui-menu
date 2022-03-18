@@ -88,7 +88,7 @@ public: // methods
     onCancel(OnEnterFunctor<Screen> handler)
     { _on_cancel = handler; }
 
-    std::string_view
+    std::string
     content() const
     { return _buffer; }
 

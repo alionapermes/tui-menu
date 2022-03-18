@@ -59,7 +59,7 @@ public:
     setTitle(StringLike auto&& title)
     { _title = std::forward<decltype(title)>(title); }
 
-    std::string_view
+    std::string
     getTitle() const
     { return _title; }
 

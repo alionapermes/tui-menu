@@ -60,7 +60,7 @@ private:
     }
 
 public:
-    std::string_view
+    std::string
     getInfoBar() const
     { return _info_bar; }
 
@@ -68,7 +68,7 @@ public:
     setInfoBar(StringLike auto&& text)
     { _info_bar = std::forward<decltype(text)>(text); }
 
-    std::string_view
+    std::string
     getIncorrectMessage() const
     { return _incorrect_msg; }
 

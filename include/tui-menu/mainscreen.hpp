@@ -42,7 +42,7 @@ public:
     setInfoBar(StringLike auto&& text)
     { _info_bar = std::forward<decltype(text)>(text); }
 
-    std::string_view
+    std::string
     getInfoBar() const
     { return _info_bar; }
 
@@ -50,7 +50,7 @@ public:
     setUnitName(StringLike auto&& unit_name)
     { _unit_name = std::forward<decltype(unit_name)>(unit_name); }
 
-    std::string_view
+    std::string
     getUnitName() const
     { return _unit_name; }
 

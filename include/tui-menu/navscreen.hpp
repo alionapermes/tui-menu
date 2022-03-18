@@ -65,7 +65,7 @@ private:
     }
 
 public:
-    std::string_view
+    std::string
     getContent() const
     { return _content; }
 
