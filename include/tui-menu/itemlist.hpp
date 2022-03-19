@@ -76,6 +76,14 @@ public:
     selectedName() const
     { return _items[_selected]; }
 
+    void
+    select(int index)
+    { _selected = index; }
+
+    size_t
+    size() const
+    { return _items.size(); }
+
 private:
     std::function<void()> _on_enter = [&] {
         auto handler = _handlers[_selected];

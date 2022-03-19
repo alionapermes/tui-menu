@@ -65,7 +65,7 @@ public:
 
     void
     exit()
-    { ::exit(0); }
+    { _term_screen.ExitLoopClosure(); }
 
     void
     switchScreen(int num)
