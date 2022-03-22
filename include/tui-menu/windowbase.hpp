@@ -37,8 +37,8 @@ public: // methods
     { *_title = std::forward<decltype(title)>(title); }
 
 public: // virtual methods
-    Component
-    renderer() {}// = 0;
+    virtual Component
+    renderer() = 0;
 };
 
 

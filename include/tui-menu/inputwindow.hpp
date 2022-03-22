@@ -50,7 +50,7 @@ public:
 
 public:
     Component
-    renderer()
+    renderer() //override
     {
         auto input_opt      = InputOption();
         input_opt.on_enter  = on_ok;

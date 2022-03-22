@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <string>
 #include <memory>
@@ -25,8 +26,17 @@ using namespace ftxui;
 class MainWindow : public WindowBase
 {
 private:
+    int n = 0;
+    int _selected_command = 0;
+    int _selected_unit    = 0;
+    std::vector<std::string> _commands;
+    std::vector<std::string> _units;
     shared_str _unit, _info;
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
+
+public:
+    std::function<void()> on_enter_commands;
+    std::function<void()> on_enter_units;
 
 public:
     MainWindow(StringLike auto&& title) : WindowBase(title)
@@ -36,56 +46,10 @@ public:
     }
 
 public:
-    /* [[noreturn]] */
-    /* Component */
-    /* renderer() override; */
-
     void
     render()
     {
-        int n = 0, n1 = 0, n2 = 0;
-        std::vector<std::string> items1 = {
-            "one",
-            "two",
-            "three",
-        };
-        std::vector<std::string> items2 = {
-            "five",
-            "six",
-            "seven",
-        };
-
-        auto opt1     = MenuOption();
-        opt1.on_enter = [&] { *_unit = items1[n1]; n = 1; };
-
-        auto opt2     = MenuOption();
-        opt2.on_enter = [&] { *_info = items2[n2]; n = 1; };
-
-        auto menu1 = Menu(&items1, &n1, &opt1);
-        auto menu2 = Menu(&items2, &n2, &opt2);
-
-        auto container = Container::Horizontal({
-            menu1,
-            menu2,
-        });
-
-        auto renderer1 = Renderer(container, [&] {
-            return window(text(*_title) | center,
-                vbox({
-                    hbox({
-                        text(*_unit),
-                        separator(),
-                        text(*_info) | flex,
-                    }),
-                    separator(),
-                    hbox({
-                        menu1->Render() | flex,
-                        separator(),
-                        menu2->Render() | flex,
-                    }),
-                })
-            );
-        });
+        auto mw_renderer = renderer();
 
         auto input_window = InputWindow(
             "input",
@@ -97,20 +61,20 @@ public:
         };
         input_window.on_cancel = [&] { n = 0; };
 
-        auto renderer2 = input_window.renderer();
+        auto iw_renderer = input_window.renderer();
 
         auto main_container = Container::Tab({
-            renderer1,
-            renderer2,
+            mw_renderer,
+            iw_renderer,
         }, &n);
 
         auto main_renderer = Renderer(main_container, [&] {
-            Element document = renderer1->Render();
+            Element document = mw_renderer->Render();
 
             if (n > 0) {
                 document = dbox({
                     document,
-                    renderer2->Render() | clear_under | center,
+                    iw_renderer->Render() | clear_under | center,
                 });
             }
 
@@ -120,13 +84,69 @@ public:
         _screen.Loop(main_renderer);
     }
 
+    Component
+    renderer() override
+    {
+        _commands = {
+            "one",
+            "two",
+            "three",
+        };
+        _units = {
+            "five",
+            "six",
+            "seven",
+        };
+
+        auto opt1     = MenuOption();
+        opt1.on_enter = on_enter_commands;
+
+        auto opt2     = MenuOption();
+        opt2.on_enter = on_enter_units;
+
+        auto commands = Menu(&_commands, &_selected_command, opt1);
+        auto units    = Menu(&_units, &_selected_unit, opt2);
+
+        auto container = Container::Horizontal({commands, units});
+
+        auto renderer = Renderer(container,
+            [this, commands, units] {
+                return window(text(*_title) | center,
+                    vbox({
+                        hbox({
+                            text(*_unit),
+                            separator(),
+                            text(*_info) | flex,
+                        }),
+                        separator(),
+                        hbox({
+                            commands->Render() | flex,
+                            separator(),
+                            units->Render() | flex,
+                        }),
+                    })
+                );
+            }
+        );
+
+        return renderer;
+    }
+
     void
-    setInfo(StringLike auto&& text)
+    set_info(StringLike auto&& text)
     { *_info = std::forward<decltype(text)>(text); }
 
     void
-    setUnit(StringLike auto&& text)
+    set_unit(StringLike auto&& text)
     { *_unit = std::forward<decltype(text)>(text); }
+
+    const std::string&
+    selected_command() const
+    { return _commands[_selected_command]; }
+
+    const std::string&
+    selected_unit() const
+    { return _units[_selected_unit]; }
 };
 
 
