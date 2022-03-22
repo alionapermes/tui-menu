@@ -23,8 +23,6 @@ public: // aliases
 
 protected: // fields
     shared_str _title;
-    Component _container;
-    Element _document;
 
 public: // ctors
     WindowBase(string_like auto&& title)

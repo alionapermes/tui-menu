@@ -1,8 +1,4 @@
-#include <cstdlib>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <string_view>
 
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
@@ -41,5 +37,4 @@ main()
 
     return 0;
 }
-
 

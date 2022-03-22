@@ -63,6 +63,33 @@ public: // ctors
     }
 
 public: // methods
+    void
+    set_info(string_like auto&& text)
+    { *_info = std::forward<decltype(text)>(text); }
+
+    void
+    set_unit(string_like auto&& text)
+    { *_unit = std::forward<decltype(text)>(text); }
+
+    const std::string&
+    selected_command() const
+    { return _commands.selected_name(); }
+
+    const std::string&
+    selected_unit() const
+    { return _units.selected_name(); }
+
+    template <string_like Text = std::string>
+    void
+    add_commands(ItemsList<Text> commands)
+    {
+        for (const auto& [name, handler] : commands) {
+            _commands._items.push_back(name);
+            _commands._handlers.push_back(handler);
+        }
+    }
+
+private: // methods
     Component
     renderer() override
     {
@@ -105,32 +132,6 @@ public: // methods
         );
 
         return renderer;
-    }
-
-    void
-    set_info(string_like auto&& text)
-    { *_info = std::forward<decltype(text)>(text); }
-
-    void
-    set_unit(string_like auto&& text)
-    { *_unit = std::forward<decltype(text)>(text); }
-
-    const std::string&
-    selected_command() const
-    { return _commands.selected_name(); }
-
-    const std::string&
-    selected_unit() const
-    { return _units.selected_name(); }
-
-    template <string_like Text = std::string>
-    void
-    add_commands(ItemsList<Text> commands)
-    {
-        for (const auto& [name, handler] : commands) {
-            _commands._items.push_back(name);
-            _commands._handlers.push_back(handler);
-        }
     }
 };
 

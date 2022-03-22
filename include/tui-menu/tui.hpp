@@ -23,7 +23,7 @@ private: // fields
     lid_t _lid_current = 0;
     lid_t _lid_main    = 0;
     std::vector<WindowBase*> _layers;
-    ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
+    ScreenInteractive _screen = ScreenInteractive::Fullscreen();
 
 public: // ctors
     TerminalUserInterface() = default;

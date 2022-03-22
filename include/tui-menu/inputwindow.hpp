@@ -36,7 +36,7 @@ public:
 
 public:
     InputWindow(
-        string_like auto&& title = "",
+        string_like auto&& title,
         string_like auto&& placeholder = ""
     )
         : WindowBase(title)
@@ -48,6 +48,27 @@ public:
     { validator = [] (std::string_view) { return true; }; }
 
 public:
+    bool
+    correct() const
+    { return _correct; }
+
+    const std::string&
+    content() const
+    { return *_content; }
+
+    void
+    clear_content()
+    { _content->clear(); }
+
+    void
+    clear_placeholder()
+    { _placeholder->clear(); }
+
+private:
+    std::function<void()> check_content = [&] {
+        _correct = validator(*_content);
+    };
+
     Component
     renderer() override
     {
@@ -91,27 +112,6 @@ public:
 
         return renderer;
     }
-
-    bool
-    correct() const
-    { return _correct; }
-
-    const std::string&
-    content() const
-    { return *_content; }
-
-    void
-    clear_content()
-    { _content->clear(); }
-
-    void
-    clear_placeholder()
-    { _placeholder->clear(); }
-
-private:
-    std::function<void()> check_content = [&] {
-        _correct = validator(*_content);
-    };
 };
 
 
