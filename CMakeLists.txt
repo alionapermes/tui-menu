@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(tui-menu)
+project(tui-menu VERSION 0.2.0)
 
-include_directories(${CMAKE_CURRENT_DIR})
-include_directories(include)
+include_directories(${CMAKE_CURRENT_DIR} include)
 
 include(FetchContent)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
