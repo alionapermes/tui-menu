@@ -10,6 +10,7 @@
 #include "ftxui/component/component_options.hpp"
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/dom/node.hpp"
+#include "ftxui/screen/color.hpp"
 
 #include "windowbase.hpp"
 #include "types.hpp"
@@ -35,8 +36,8 @@ public:
 
 public:
     InputWindow(
-        StringLike auto&& title = "",
-        StringLike auto&& placeholder = ""
+        string_like auto&& title = "",
+        string_like auto&& placeholder = ""
     )
         : WindowBase(title)
         , _info(Make<std::string>())
@@ -44,44 +45,44 @@ public:
         , _placeholder(Make<std::string>(
             std::forward<decltype(placeholder)>(placeholder)
         ))
-    {
-        validator = [] (std::string_view) { return true; };
-    }
+    { validator = [] (std::string_view) { return true; }; }
 
 public:
     Component
-    renderer() //override
+    renderer() override
     {
         auto input_opt      = InputOption();
         input_opt.on_enter  = on_ok;
         input_opt.on_change = check_content;
 
-        auto input_field = Input(
+        Component input_field   = Input(
             &*_content,
             &*_placeholder,
             std::move(input_opt)
         );
+        Component button_ok     = Button("OK", on_ok);
+        Component button_cancel = Button("Отмена", on_cancel);
 
-        auto button_ok     = Button("OK", on_ok);
-        auto button_cancel = Button("Отмена", on_cancel);
-
-        auto container = Container::Vertical({
+        Component container = Container::Vertical({
             input_field,
             Container::Horizontal({
                 button_ok,
                 button_cancel,
             }),
         });
-
-        auto renderer = Renderer(container,
+        Component renderer  = Renderer(container,
             [this, input_field, button_ok, button_cancel] {
+                Element input_element = input_field->Render() | border;
+                if (!_correct)
+                    input_element = input_element | color(Color::Red);
+
                 return window(text(*_title) | center,
                     vbox({
                         text(*_info),
-                        input_field->Render() | border,
+                        input_element,
                         hbox({
-                            button_ok->Render(),
-                            button_cancel->Render(),
+                            button_ok->Render() | flex,
+                            button_cancel->Render() | flex,
                         }),
                     })
                 );

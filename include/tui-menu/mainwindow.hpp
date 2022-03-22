@@ -11,10 +11,8 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/dom/node.hpp"
-#include "ftxui/screen/color.hpp"
 
 #include "windowbase.hpp"
-#include "inputwindow.hpp"
 #include "types.hpp"
 
 
@@ -25,91 +23,68 @@ using namespace ftxui;
 
 class MainWindow : public WindowBase
 {
-private:
-    int n = 0;
-    int _selected_command = 0;
-    int _selected_unit    = 0;
-    std::vector<std::string> _commands;
-    std::vector<std::string> _units;
+private: // data types
+    template <string_like Text>
+    using ItemsList = std::vector<std::pair<Text, std::function<void()>>>;
+
+    class ItemsMenu
+    {
+        friend MainWindow;
+
+    public:
+        int
+        selected() const
+        { return _selected; }
+
+        const std::string&
+        selected_name() const
+        { return _items[_selected]; }
+
+        void
+        exec()
+        { _handlers[_selected](); }
+
+    private:
+        int _selected = 0;
+        std::vector<std::string> _items;
+        std::vector<std::function<void()>> _handlers;
+    };
+
+private: // fields
+    ItemsMenu _commands, _units;
     shared_str _unit, _info;
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
 
-public:
-    std::function<void()> on_enter_commands;
-    std::function<void()> on_enter_units;
-
-public:
-    MainWindow(StringLike auto&& title) : WindowBase(title)
+public: // ctors
+    MainWindow(string_like auto&& title) : WindowBase(title)
     {
         _unit = Make<std::string>();
         _info = Make<std::string>();
     }
 
-public:
-    void
-    render()
-    {
-        auto mw_renderer = renderer();
-
-        auto input_window = InputWindow(
-            "input",
-            "type something"
-        );
-        input_window.on_ok = [&] {
-            *_title = input_window.content();
-            n = 0;
-        };
-        input_window.on_cancel = [&] { n = 0; };
-
-        auto iw_renderer = input_window.renderer();
-
-        auto main_container = Container::Tab({
-            mw_renderer,
-            iw_renderer,
-        }, &n);
-
-        auto main_renderer = Renderer(main_container, [&] {
-            Element document = mw_renderer->Render();
-
-            if (n > 0) {
-                document = dbox({
-                    document,
-                    iw_renderer->Render() | clear_under | center,
-                });
-            }
-
-            return document;
-        });
-
-        _screen.Loop(main_renderer);
-    }
-
+public: // methods
     Component
     renderer() override
     {
-        _commands = {
-            "one",
-            "two",
-            "three",
-        };
-        _units = {
-            "five",
-            "six",
-            "seven",
-        };
+        auto commands_opt     = MenuOption();
+        commands_opt.on_enter = [this] { _commands.exec(); };
 
-        auto opt1     = MenuOption();
-        opt1.on_enter = on_enter_commands;
+        auto units_opt     = MenuOption();
+        units_opt.on_enter = [this] { _units.exec(); };
 
-        auto opt2     = MenuOption();
-        opt2.on_enter = on_enter_units;
+        Component commands = Menu(
+            &_commands._items,
+            &_commands._selected,
+            std::move(commands_opt)
+        );
+        Component units    = Menu(
+            &_units._items,
+            &_units._selected,
+            std::move(units_opt)
+        );
 
-        auto commands = Menu(&_commands, &_selected_command, opt1);
-        auto units    = Menu(&_units, &_selected_unit, opt2);
-
-        auto container = Container::Horizontal({commands, units});
-
-        auto renderer = Renderer(container,
+        Component container = Container::Horizontal({commands, units});
+        Component renderer  = Renderer(container,
             [this, commands, units] {
                 return window(text(*_title) | center,
                     vbox({
@@ -133,20 +108,30 @@ public:
     }
 
     void
-    set_info(StringLike auto&& text)
+    set_info(string_like auto&& text)
     { *_info = std::forward<decltype(text)>(text); }
 
     void
-    set_unit(StringLike auto&& text)
+    set_unit(string_like auto&& text)
     { *_unit = std::forward<decltype(text)>(text); }
 
     const std::string&
     selected_command() const
-    { return _commands[_selected_command]; }
+    { return _commands.selected_name(); }
 
     const std::string&
     selected_unit() const
-    { return _units[_selected_unit]; }
+    { return _units.selected_name(); }
+
+    template <string_like Text = std::string>
+    void
+    add_commands(ItemsList<Text> commands)
+    {
+        for (const auto& [name, handler] : commands) {
+            _commands._items.push_back(name);
+            _commands._handlers.push_back(handler);
+        }
+    }
 };
 
 

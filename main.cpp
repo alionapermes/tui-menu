@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "ftxui/component/screen_interactive.hpp"
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
 #include "tui-menu/tui.hpp"
@@ -16,29 +15,29 @@ main()
 {
     using namespace ftxui;
 
-    tuim::TUI term;
+    tuim::TerminalUserInterface tui;
     tuim::MainWindow mw("main window title");
     tuim::InputWindow iw("input window title", "type something");
 
-    lid_t mwd = term.add_layer(&mw, true);
-    lid_t iwd = term.add_layer(&iw);
+    lid_t mwd = tui.add_layer(&mw, true);
+    lid_t iwd = tui.add_layer(&iw);
 
-    mw.on_enter_units    = [&] {
-        mw.set_unit(mw.selected_unit());
-        term.set_layer(iwd);
-    };
-    mw.on_enter_commands = [&] {
-        mw.set_info(mw.selected_command());
-        term.set_layer(iwd);
-    };
+    mw.add_commands({
+        {"command #1", [&] { tui.set_layer(iwd); }},
+        {"command #2", [&] { mw.set_unit("unit !!"); }},
+        {"command #3", [&] { mw.set_info("some useful info"); }},
+    });
 
     iw.on_ok = [&] {
         mw.set_title(iw.content());
-        term.set_layer(mwd);
+        tui.set_layer(mwd);
     };
-    iw.on_cancel = [&] { term.set_layer(mwd); };
+    iw.on_cancel = [&] { tui.set_layer(mwd); };
+    iw.validator = [&] (std::string_view content) {
+        return content.length() <= 4;
+    };
 
-    term.render();
+    tui.render();
 
     return 0;
 }

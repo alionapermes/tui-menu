@@ -8,8 +8,7 @@
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 
-#include "tui-menu/windowbase.hpp"
-#include "mainwindow.hpp"
+#include "windowbase.hpp"
 #include "types.hpp"
 
 
@@ -18,21 +17,18 @@ namespace tuim {
 using namespace ftxui;
 
 
-class TUI
+class TerminalUserInterface
 {
-public:
-    using lid_t = int;
-
-private:
+private: // fields
     lid_t _lid_current = 0;
     lid_t _lid_main    = 0;
     std::vector<WindowBase*> _layers;
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
 
-public:
-    TUI() = default;
+public: // ctors
+    TerminalUserInterface() = default;
 
-public:
+public: // methods
     lid_t
     add_layer(WindowBase* layer, bool as_main = false)
     {
@@ -60,44 +56,22 @@ public:
         for (auto& layer : _layers)
             renderers.push_back(layer->renderer());
 
-        /* auto main_window = MainWindow("main window"); */
-        /* main_window.on_enter_commands = [&] { _lid_current = 1; }; */
-        /* main_window.on_enter_units    = _screen.ExitLoopClosure(); */
-        /* auto mw_renderer = main_window.renderer(); */
-
-        /* auto input_window = InputWindow( */
-        /*     "input", */
-        /*     "type something" */
-        /* ); */
-        /* input_window.on_ok = [&] { */
-        /*     main_window.set_title(input_window.content()); */
-        /*     _lid_current = _lid_main; */
-        /* }; */
-        /* input_window.on_cancel = [&] { _lid_current = _lid_main; }; */
-
-        /* auto iw_renderer = input_window.renderer(); */
-
-        /* auto main_container = Container::Tab({ */
-        /*     mw_renderer, */
-        /*     iw_renderer, */
-        /* }, &_lid_current); */
-
         auto main_container = Container::Tab(renderers, &_lid_current);
+        auto main_renderer  = Renderer(main_container,
+            [this, renderers = std::move(renderers)] {
+                Element document = renderers[_lid_main]->Render();
 
-        auto main_renderer = Renderer(main_container, [&] {
-            /* Element document = mw_renderer->Render(); */
-            Element document = renderers[_lid_main]->Render();
+                if (_lid_current != _lid_main) {
+                    document = dbox({
+                        document,
+                        renderers[_lid_current]->Render()
+                            | clear_under | center,
+                    });
+                }
 
-            if (_lid_current != _lid_main) {
-                document = dbox({
-                    document,
-                    /* iw_renderer->Render() | clear_under | center, */
-                    renderers[_lid_current]->Render() | clear_under | center,
-                });
+                return document;
             }
-
-            return document;
-        });
+        );
 
         _screen.Loop(main_renderer);
     }
