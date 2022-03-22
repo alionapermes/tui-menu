@@ -3,14 +3,11 @@
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
 #include "tui-menu/tui.hpp"
-#include "tui-menu/types.hpp"
 
 
 int
 main()
 {
-    using namespace ftxui;
-
     tuim::TerminalUserInterface tui;
     tuim::MainWindow mw("main window title");
     tuim::InputWindow iw("input window title", "type something");
