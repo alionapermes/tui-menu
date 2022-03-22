@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <memory>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
@@ -30,7 +31,7 @@ public:
 private: // fields
     size_t _min_len;
     size_t _max_len;
-    std::string _buffer;
+    std::shared_ptr<std::string> _buffer;
     std::string _placeholder;
     Component _input;
     Component _button_ok;
@@ -53,13 +54,15 @@ public: // ctors
         , _max_len(max_len)
         , _predicate(predicate)
     {
+        _buffer = std::make_shared<std::string>();
+
         std::function<void()> on_ok = [&] {
             if (isCorrect())
                 _on_ok(dynamic_cast<Screen*>(_owner));
         };
 
         _input_option  = InputOption{ .on_enter = on_ok };
-        _input         = Input(&_buffer, &_placeholder, &_input_option);
+        _input         = Input(&*_buffer, &_placeholder, &_input_option);
 
         _button_ok     = Button("ОК", on_ok);
         _button_cancel = Button("Отмена", [&] {
@@ -90,19 +93,19 @@ public: // methods
 
     std::string
     content() const
-    { return _buffer; }
+    { return *_buffer; }
 
     void
     clear()
-    { _buffer.clear(); }
+    { _buffer->clear(); }
 
     bool
     isCorrect() const
     {
         return (
-            _predicate(_buffer)
-            && (_buffer.length() >= _min_len)
-            && ((_buffer.length() <= _max_len) || !_max_len)
+            _predicate(*_buffer)
+            && (_buffer->length() >= _min_len)
+            && ((_buffer->length() <= _max_len) || !_max_len)
         );
     }
 

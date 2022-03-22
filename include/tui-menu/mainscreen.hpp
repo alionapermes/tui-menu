@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <memory>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
@@ -24,7 +25,7 @@ public:
     using Menu = ItemList<MainScreen>;
 
 private:
-    std::string _unit_name;
+    std::shared_ptr<std::string> _unit_name;
     std::string _info_bar;
     CombinedComponent* _commands_menu = nullptr;
     CombinedComponent* _units_menu    = nullptr;
@@ -34,6 +35,7 @@ public:
         : _commands_menu(commands_ptr)
         , _units_menu(units_ptr)
     {
+        _unit_name = std::make_shared<std::string>();
         _commands_menu->_owner = this;
         _units_menu->_owner    = this;
     }
@@ -48,11 +50,11 @@ public:
 
     void
     setUnitName(StringLike auto&& unit_name)
-    { _unit_name = std::forward<decltype(unit_name)>(unit_name); }
+    { *_unit_name = std::forward<decltype(unit_name)>(unit_name); }
 
     std::string
     getUnitName() const
-    { return _unit_name; }
+    { return *_unit_name; }
 
 private:
     Element
@@ -60,7 +62,7 @@ private:
     {
         return vbox({
             hbox({
-                text(_unit_name),
+                text(*_unit_name),
                 separator(),
                 text(_info_bar) | flex,
             }),
