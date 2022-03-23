@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <memory>
+#include <utility>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
@@ -23,18 +24,18 @@ using namespace ftxui;
 
 class InputWindow : public WindowBase
 {
-private:
+private: // fields
     bool _correct = true;
     std::string _info;
     std::string _content;
     std::string _placeholder;
 
-public:
+public: // handlers
     std::function<bool(std::string_view)> validator;
     std::function<void()> on_ok;
     std::function<void()> on_cancel;
 
-public:
+public: // ctors
     InputWindow(
         string_like auto&& title,
         string_like auto&& placeholder = ""
@@ -43,14 +44,22 @@ public:
         , _placeholder(std::forward<decltype(placeholder)>(placeholder))
     { validator = [] (std::string_view) { return true; }; }
 
-public:
+public: // methods
     bool
     correct() const
-    { return _correct || _content.empty(); }
+    { return _correct && !_content.empty(); }
 
     const std::string&
     content() const
     { return _content; }
+
+    const std::string&
+    get_placeholder() const
+    { return _placeholder; }
+
+    void
+    set_placeholder(string_like auto&& text)
+    { _placeholder = std::forward<decltype(text)>(text); }
 
     void
     clear_content()
@@ -60,7 +69,7 @@ public:
     clear_placeholder()
     { _placeholder.clear(); }
 
-private:
+private: // methods
     std::function<void()> check_content = [&] {
         _correct = validator(_content);
     };

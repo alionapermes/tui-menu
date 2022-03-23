@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -92,10 +91,12 @@ private: // methods
     bool
     event_handler(Event event)
     {
-        if (event == Event::Character('q')
-            ||  event == Event::Escape
-        ) {
-            _screen.ExitLoopClosure()();
+        if (event == Event::Escape) {
+            if (_lid_current == _lid_main)
+                _screen.ExitLoopClosure()();
+            else
+                set_layer(_lid_main);
+
             return true;
         }
 
