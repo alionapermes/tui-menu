@@ -6,10 +6,14 @@
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
+#include "ftxui/component/event.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 
 #include "windowbase.hpp"
 #include "types.hpp"
+
+
+using lid_t = int;
 
 
 namespace tuim {
@@ -73,7 +77,25 @@ public: // methods
             }
         );
 
+        main_renderer = CatchEvent(main_renderer, [this](Event event) {
+            return event_handler(event);
+        });
+
         _screen.Loop(main_renderer);
+    }
+
+private: // methods
+    bool
+    event_handler(Event event)
+    {
+        if (event == Event::Character('q')
+            ||  event == Event::Escape
+        ) {
+            _screen.ExitLoopClosure()();
+            return true;
+        }
+
+        return false;
     }
 };
 
