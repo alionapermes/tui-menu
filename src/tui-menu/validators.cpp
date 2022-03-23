@@ -2,8 +2,7 @@
 
 
 bool
-tuim::
-is_numeric(std::string_view buffer)
+tuim::is_numeric(std::string_view buffer)
 {
     bool dot_once = false;
     float num     = 0;

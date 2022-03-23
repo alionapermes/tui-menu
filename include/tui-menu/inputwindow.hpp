@@ -25,9 +25,9 @@ class InputWindow : public WindowBase
 {
 private:
     bool _correct = true;
-    shared_str _info;
-    shared_str _content;
-    shared_str _placeholder;
+    std::string _info;
+    std::string _content;
+    std::string _placeholder;
 
 public:
     std::function<bool(std::string_view)> validator;
@@ -40,33 +40,29 @@ public:
         string_like auto&& placeholder = ""
     )
         : WindowBase(title)
-        , _info(Make<std::string>())
-        , _content(Make<std::string>())
-        , _placeholder(Make<std::string>(
-            std::forward<decltype(placeholder)>(placeholder)
-        ))
+        , _placeholder(std::forward<decltype(placeholder)>(placeholder))
     { validator = [] (std::string_view) { return true; }; }
 
 public:
     bool
     correct() const
-    { return _correct || _content->empty(); }
+    { return _correct || _content.empty(); }
 
     const std::string&
     content() const
-    { return *_content; }
+    { return _content; }
 
     void
     clear_content()
-    { _content->clear(); }
+    { _content.clear(); }
 
     void
     clear_placeholder()
-    { _placeholder->clear(); }
+    { _placeholder.clear(); }
 
 private:
     std::function<void()> check_content = [&] {
-        _correct = validator(*_content);
+        _correct = validator(_content);
     };
 
     Component
@@ -82,8 +78,8 @@ private:
         input_opt.on_change = check_content;
 
         Component input_field   = Input(
-            &*_content,
-            &*_placeholder,
+            &_content,
+            &_placeholder,
             std::move(input_opt)
         );
         Component button_ok     = Button("OK", ok_handler);
@@ -102,9 +98,9 @@ private:
                 if (!correct())
                     input_element = input_element | color(Color::Red);
 
-                return window(text(*_title) | center,
+                return window(text(_title) | center,
                     vbox({
-                        text(*_info),
+                        text(_info),
                         input_element,
                         hbox({
                             button_ok->Render() | flex,

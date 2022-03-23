@@ -52,24 +52,20 @@ private: // data types
 
 private: // fields
     ItemsMenu _commands, _units;
-    shared_str _unit, _info;
+    std::string _unit, _info;
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
 
 public: // ctors
-    MainWindow(string_like auto&& title) : WindowBase(title)
-    {
-        _unit = Make<std::string>();
-        _info = Make<std::string>();
-    }
+    MainWindow(string_like auto&& title) : WindowBase(title) {}
 
 public: // methods
     void
     set_info(string_like auto&& text)
-    { *_info = std::forward<decltype(text)>(text); }
+    { _info = std::forward<decltype(text)>(text); }
 
     void
     set_unit(string_like auto&& text)
-    { *_unit = std::forward<decltype(text)>(text); }
+    { _unit = std::forward<decltype(text)>(text); }
 
     const std::string&
     selected_command() const
@@ -113,12 +109,12 @@ private: // methods
         Component container = Container::Horizontal({commands, units});
         Component renderer  = Renderer(container,
             [this, commands, units] {
-                return window(text(*_title) | center,
+                return window(text(_title) | center,
                     vbox({
                         hbox({
-                            text(*_unit),
+                            text(_unit),
                             separator(),
-                            text(*_info) | flex,
+                            text(_info) | flex,
                         }),
                         separator(),
                         hbox({

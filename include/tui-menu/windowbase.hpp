@@ -18,24 +18,21 @@ using namespace ftxui;
 
 class WindowBase
 {
-public: // aliases
-    using shared_str = std::shared_ptr<std::string>;
-
 protected: // fields
-    shared_str _title;
+    std::string _title;
 
 public: // ctors
     WindowBase(string_like auto&& title)
-        : _title(Make<std::string>(std::forward<decltype(title)>(title))) {}
+        : _title(std::forward<decltype(title)>(title)) {}
 
 public: // methods
     const std::string&
     get_title() const
-    { return *_title; }
+    { return _title; }
 
     void
     set_title(string_like auto&& title)
-    { *_title = std::forward<decltype(title)>(title); }
+    { _title = std::forward<decltype(title)>(title); }
 
 public: // virtual methods
     virtual Component
