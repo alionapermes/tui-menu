@@ -84,6 +84,10 @@ public: // methods
         _screen.Loop(main_renderer);
     }
 
+    void
+    exit()
+    { _screen.ExitLoopClosure()(); }
+
 private: // methods
     bool
     event_handler(Event event)

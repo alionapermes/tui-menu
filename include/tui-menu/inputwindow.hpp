@@ -50,7 +50,7 @@ public:
 public:
     bool
     correct() const
-    { return _correct; }
+    { return _correct || _content->empty(); }
 
     const std::string&
     content() const
@@ -99,7 +99,7 @@ private:
         Component renderer  = Renderer(container,
             [this, input_field, button_ok, button_cancel] {
                 Element input_element = input_field->Render() | border;
-                if (!_correct)
+                if (!correct())
                     input_element = input_element | color(Color::Red);
 
                 return window(text(*_title) | center,

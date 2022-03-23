@@ -17,6 +17,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BIN menu)
 set(SRC main.cpp)
 
+add_library(validators STATIC src/tui-menu/validators.cpp)
+
 add_executable(${BIN} ${SRC})
-target_link_libraries(${BIN} ${CONAN_LIBS})
+target_link_libraries(${BIN} ${CONAN_LIBS} validators)
 

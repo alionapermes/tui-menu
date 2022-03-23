@@ -3,6 +3,7 @@
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
 #include "tui-menu/tui.hpp"
+#include "tui-menu/validators.hpp"
 
 
 int
@@ -26,9 +27,7 @@ main()
         tui.set_layer(mwd);
     };
     iw.on_cancel = [&] { tui.set_layer(mwd); };
-    iw.validator = [&] (std::string_view content) {
-        return content.length() <= 4;
-    };
+    iw.validator = &tuim::is_numeric;
 
     tui.render();
 
