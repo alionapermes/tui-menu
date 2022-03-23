@@ -72,8 +72,13 @@ private:
     Component
     renderer() override
     {
+        std::function<void()> ok_handler = [this] {
+            if (_correct)
+                on_ok();
+        };
+
         auto input_opt      = InputOption();
-        input_opt.on_enter  = on_ok;
+        input_opt.on_enter  = ok_handler;
         input_opt.on_change = check_content;
 
         Component input_field   = Input(
@@ -81,7 +86,7 @@ private:
             &*_placeholder,
             std::move(input_opt)
         );
-        Component button_ok     = Button("OK", on_ok);
+        Component button_ok     = Button("OK", ok_handler);
         Component button_cancel = Button("Отмена", on_cancel);
 
         Component container = Container::Vertical({
