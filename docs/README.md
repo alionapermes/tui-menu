@@ -103,6 +103,7 @@ set_layer(lid_t lid)
 ---
 
 ```cpp
+void
 set_main_layer(lid_t lid)
 ```
 

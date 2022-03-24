@@ -117,3 +117,7 @@ cmake --build .
 Находясь в build:  
 `./bin/menu`
 
+## Куда
+
+[Сюда](https://t.me/alionapermes)
+
