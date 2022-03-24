@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tui-menu VERSION 0.2.0)
+project(tui-menu VERSION 0.3.0)
 
 include_directories(${CMAKE_CURRENT_DIR} include)
 

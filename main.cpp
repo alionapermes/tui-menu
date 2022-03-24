@@ -14,7 +14,7 @@ main()
     tuim::TerminalUserInterface tui;
     tuim::MainWindow<std::vector<int>> mw("main window title");
     tuim::InputWindow iw_str("input window title", "len [1; 8]");
-    tuim::InputWindow iw_num("number input", "type number");
+    tuim::InputWindow iw_num("number input", "type number [-99; 99]");
 
     lid_t mwd     = tui.add_layer(&mw, true);
     lid_t iwd_str = tui.add_layer(&iw_str);
@@ -22,14 +22,18 @@ main()
 
     mw.add_commands({
         {"new unit", [&] {
-            iw_str.clear_content();
+            iw_str.on_ok = [&] {
+                mw.add_unit(iw_str.content());
+                tui.set_layer(mwd);
+            };
+            iw_str.reset();
             tui.set_layer(iwd_str);
         }},
         {"add item", [&] {
             if (mw.units_empty())
                 return mw.set_info("create/select a unit before");
 
-            iw_num.clear_content();
+            iw_num.reset();
             tui.set_layer(iwd_num);
         }},
         {"print items", [&] {
@@ -39,22 +43,26 @@ main()
 
             mw.set_info(std::move(buffer));
         }},
+        {"remove unit", [&] {
+            iw_str.on_ok = [&] {
+                mw.remove_unit(iw_str.content());
+                tui.set_layer(mwd);
+            };
+            iw_str.clear_content();
+            tui.set_layer(iwd_str);
+        }},
         {"set info", [&] { mw.set_info("some useful info"); }},
     });
 
-    iw_str.on_ok     = [&] {
-        mw.add_unit(iw_str.content());
-        tui.set_layer(mwd);
-    };
     iw_str.on_cancel = [&] { tui.set_layer(mwd); };
-    iw_str.validator = tuim::length_range(1, 9);
+    iw_str.validator = tuim::length_range(1, 8);
 
     iw_num.on_ok     = [&] {
         mw.current_unit().push_back(std::stoi(iw_num.content()));
         tui.set_layer(mwd);
     };
     iw_num.on_cancel = [&] { tui.set_layer(mwd); };
-    iw_num.validator = tuim::is_numeric();
+    iw_num.validator = tuim::is_numeric() | tuim::in_range(-100, 100);
 
     tui.render();
 

@@ -6,15 +6,24 @@
 #include <string>
 #include <string_view>
 
+#include "types.hpp"
+
+
+tuim::Validator
+operator|(const tuim::Validator& lhs, const tuim::Validator& rhs);
+
 
 namespace tuim {
 
 
-std::function<bool(std::string_view)>
+Validator
 is_numeric();
 
-std::function<bool(std::string_view)>
-length_range(size_t minimum, size_t oversize);
+Validator
+length_range(size_t minimum, size_t maximum);
+
+Validator
+in_range(float minimum, float maximum);
 
 
 }

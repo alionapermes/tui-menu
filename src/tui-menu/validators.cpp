@@ -1,7 +1,15 @@
 #include "tui-menu/validators.hpp"
 
 
-std::function<bool(std::string_view)>
+tuim::Validator
+operator|(const tuim::Validator& lhs, const tuim::Validator& rhs)
+{
+    return [&lhs, &rhs](std::string_view buffer) -> bool {
+        return lhs(buffer) && rhs(buffer);
+    };
+}
+
+tuim::Validator
 tuim::is_numeric()
 {
     return [](std::string_view buffer) -> bool {
@@ -25,11 +33,20 @@ tuim::is_numeric()
     };
 };
 
-std::function<bool(std::string_view)>
-tuim::length_range(size_t minimum, size_t oversize)
+tuim::Validator
+tuim::length_range(size_t minimum, size_t maximum)
 {
-    return [minimum, oversize](std::string_view buffer) -> bool {
-        return minimum <= buffer.length() && buffer.length() < oversize;
+    return [minimum, maximum](std::string_view buffer) -> bool {
+        return ((minimum <= buffer.length()) && (buffer.length() <= maximum));
+    };
+}
+
+tuim::Validator
+tuim::in_range(float minimum, float maximum)
+{
+    return [minimum, maximum](std::string_view buffer) -> bool {
+        float num = std::stof(std::string(buffer));
+        return ((minimum <= num) && (num <= maximum));
     };
 }
 

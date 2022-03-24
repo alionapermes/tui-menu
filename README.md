@@ -1,8 +1,8 @@
-# tui-menu
+# tui-menu v0.3.0
 
 Консольный пользовательский интерфейс (TUI) для управления контейнерами данных
 
-Для навигации используются стрелки, выход по нажатию `q` или `Escape`
+Для навигации используются стрелки, выход по нажатию `Escape`
 
 ## Скрины
 
@@ -13,6 +13,10 @@
 ## Пример кода
 
 ```cpp
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
 #include "tui-menu/tui.hpp"
@@ -23,24 +27,57 @@ int
 main()
 {
     tuim::TerminalUserInterface tui;
-    tuim::MainWindow mw("main window title");
-    tuim::InputWindow iw("input window title", "type something");
+    tuim::MainWindow<std::vector<int>> mw("main window title");
+    tuim::InputWindow iw_str("input window title", "len [1; 8]");
+    tuim::InputWindow iw_num("number input", "type number [-99; 99]");
 
-    lid_t mwd = tui.add_layer(&mw, true);
-    lid_t iwd = tui.add_layer(&iw);
+    lid_t mwd     = tui.add_layer(&mw, true);
+    lid_t iwd_str = tui.add_layer(&iw_str);
+    lid_t iwd_num = tui.add_layer(&iw_num);
 
     mw.add_commands({
-        {"command #1", [&] { tui.set_layer(iwd); }},
-        {"command #2", [&] { mw.set_unit("unit !!"); }},
-        {"command #3", [&] { mw.set_info("some useful info"); }},
+        {"new unit", [&] {
+            iw_str.on_ok = [&] {
+                mw.add_unit(iw_str.content());
+                tui.set_layer(mwd);
+            };
+            iw_str.reset();
+            tui.set_layer(iwd_str);
+        }},
+        {"add item", [&] {
+            if (mw.units_empty())
+                return mw.set_info("create/select a unit before");
+
+            iw_num.reset();
+            tui.set_layer(iwd_num);
+        }},
+        {"print items", [&] {
+            std::string buffer;
+            for (const auto& item : mw.current_unit())
+                buffer += std::to_string(item) + ", ";
+
+            mw.set_info(std::move(buffer));
+        }},
+        {"remove unit", [&] {
+            iw_str.on_ok = [&] {
+                mw.remove_unit(iw_str.content());
+                tui.set_layer(mwd);
+            };
+            iw_str.clear_content();
+            tui.set_layer(iwd_str);
+        }},
+        {"set info", [&] { mw.set_info("some useful info"); }},
     });
 
-    iw.on_ok = [&] {
-        mw.set_title(iw.content());
+    iw_str.on_cancel = [&] { tui.set_layer(mwd); };
+    iw_str.validator = tuim::length_range(1, 8);
+
+    iw_num.on_ok     = [&] {
+        mw.current_unit().push_back(std::stoi(iw_num.content()));
         tui.set_layer(mwd);
     };
-    iw.on_cancel = [&] { tui.set_layer(mwd); };
-    iw.validator = &tuim::is_numeric;
+    iw_num.on_cancel = [&] { tui.set_layer(mwd); };
+    iw_num.validator = tuim::is_numeric() | tuim::in_range(-100, 100);
 
     tui.render();
 
@@ -82,220 +119,3 @@ cmake --build .
 Находясь в build:  
 `./bin/menu`
 
-## API
-
-Краткое описание возможностей библиотеки
-
-### Валидаторы
-
-```cpp
-bool
-is_numeric(std::string_view buffer)
-```
-
-Определяет, является ли строка числом
-
-### Концепты
-
-```cpp
-template<typename T>
-concept string_like = std::is_convertible_v<T, std::string_view>;
-```
-
-`string_like` ограничивает шаблонный параметр `T` типами,
-конвертируемыми в строковый вид
-
-### Класс TerminalUserInterface
-
-Основной класс, отвечающий за работу программы
-
-#### Типы
-
-`lid_t` - тип дескриптора окна
-
-#### Методы
-
-```cpp
-lid_t
-add_layer(WindowBase* layer, bool as_main = false)
-```
-
-Возвращает дескриптор добавленного окна
-
----
-
-```cpp
-void
-set_layer(lid_t lid)
-```
-
-Устанавливает слой для рендера
-
----
-
-```cpp
-set_main_layer(lid_t lid)
-```
-
-Устанавливает основной слой рендера
-
----
-
-```cpp
-void
-render()
-```
-
-Метод, запускающий обработку интерфейса
-
----
-
-### Класс MainWindow
-
-Класс, позволяющий управлять содержимым меню команд и контейнеров
-
-#### Типы
-
-```cpp
-template <string_like Text>
-using ItemsList<Text> = std::vector<std::pair<std::string, std::function<void()>>>;
-```
-
-#### Методы
-
-```cpp
-MainWindow(string_like auto&& title)
-```
-
-Конструктор, устанавливающий заголовок окна
-
----
-
-```cpp
-void
-set_info(string_like auto&& text)
-```
-
-Установка поля для вывода информации
-
-![field info](images/info.png)
-
----
-
-```cpp
-void
-set_unit(string_like auto&& text)
-```
-
-Установка поля для вывода названия контейнера
-
-![field unit](images/unit.png)
-
----
-
-```cpp
-const std::string&
-selected_command() const
-```
-
-Возвращает название выбранной в данной момент команды
-
----
-
-```cpp
-const std::string&
-selected_unit() const
-```
-
-Возвращает название выбранного в данный момент контейнера
-
----
-
-```cpp
-template <string_like Text = std::string>
-void
-add_commands(ItemsList<Text> commands)
-```
-
-Добавляет спиок команд с их обработчиками
-
----
-
-### Класс InputWindow
-
-Класс для чтения пользовательского ввода
-
-#### Методы
-
-```cpp
-InputWindow(
-	string_like auto&& title,
-	string_like auto&& placeholder
-)
-```
-
-Конструктор, устанавливающий заголовок окна и плейсхолдер поля ввода
-
----
-
-```cpp
-bool
-correct() const
-```
-
-Определяет корректность содержимого поля ввода
-
----
-
-```cpp
-const std::string&
-content() const
-```
-
-Возвращает содержимое поля ввода
-
----
-
-```cpp
-void
-clear_placeholder()
-```
-
-Очищает плейсхолдер поля ввода
-
----
-
-```cpp
-void
-clear_content()
-```
-
-Очищает содержимое поля ввода
-
----
-
-#### Обработчики
-
-```cpp
-std::function<bool(std::string_view)> validator
-```
-
-Обработчик, неявно принимающий в качестве единственного аргумента содержимое поля ввода и определяет его корректность.
-
----
-
-```cpp
-std::function<void()> on_ok
-```
-
-Отвечает за обработку нажатия кнопки ОК или Enter на поле ввода
-
----
-
-```cpp
-std::function<void()> on_cancel
-```
-
-Отвечает за обработку нажатия кнопки Отмена
-
----

@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <functional>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,11 +28,13 @@ using namespace ftxui;
 template <typename T>
 class MainWindow : public WindowBase
 {
-private: // data types
-    using ItemsList = std::vector<
+public: // aliases
+    using container_type = T;
+    using ItemsList      = std::vector<
         std::pair<std::string, std::function<void()>>
     >;
 
+private: // data types
     class ItemsMenu
     {
     private:
@@ -90,7 +94,7 @@ private: // data types
 
 private: // fields
     std::string _unit_name, _info;
-    std::unordered_map<std::string, T> _containers;
+    std::unordered_map<std::string, container_type> _containers;
     ItemsMenu _commands, _units;
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
 
@@ -128,7 +132,7 @@ public: // methods
         if (_containers.contains(unit))
             return false;
 
-        _containers[unit] = T(args...);
+        _containers[unit] = container_type(args...);
         _units.add(std::forward<decltype(unit)>(unit), [this] {
             _unit_name = selected_unit_name();
         });
@@ -138,15 +142,33 @@ public: // methods
 
     bool
     remove_unit(const std::string& name)
-    { return _units.erase(name); }
+    {
+        auto iter = _containers.find(name);
+        if (iter == _containers.end())
+            return false;
 
-    T&
+        _containers.erase(iter);
+        
+        if (_units.erase(name)) {
+            _unit_name = selected_unit_name();
+            return true;
+        }
+
+        return false;
+    }
+
+    container_type&
     current_unit()
     {
-        if (current_unit_name().empty())
-            return _containers[selected_unit_name()];
-        else
-            return _containers[current_unit_name()];
+        if (units_empty())
+            throw std::runtime_error("units list is empty");
+
+        if (current_unit_name().empty()) {
+            _unit_name = _units.items().front();
+            return _containers[_unit_name];
+        }
+
+        return _containers[current_unit_name()];
     }
 
     const std::string&

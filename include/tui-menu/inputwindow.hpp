@@ -29,9 +29,10 @@ private: // fields
     std::string _info;
     std::string _content;
     std::string _placeholder;
+    Component _input_field;
 
 public: // handlers
-    std::function<bool(std::string_view)> validator;
+    Validator validator;
     std::function<void()> on_ok;
     std::function<void()> on_cancel;
 
@@ -69,6 +70,13 @@ public: // methods
     clear_placeholder()
     { _placeholder.clear(); }
 
+    void
+    reset()
+    {
+        clear_content();
+        _input_field->TakeFocus();
+    }
+
 private: // methods
     std::function<void()> check_content = [&] {
         _correct = validator(_content);
@@ -86,7 +94,7 @@ private: // methods
         input_opt.on_enter  = ok_handler;
         input_opt.on_change = check_content;
 
-        Component input_field   = Input(
+        _input_field            = Input(
             &_content,
             &_placeholder,
             std::move(input_opt)
@@ -95,15 +103,15 @@ private: // methods
         Component button_cancel = Button("Отмена", on_cancel);
 
         Component container = Container::Vertical({
-            input_field,
+            _input_field,
             Container::Horizontal({
                 button_ok,
                 button_cancel,
             }),
         });
         Component renderer  = Renderer(container,
-            [this, input_field, button_ok, button_cancel] {
-                Element input_element = input_field->Render() | border;
+            [this, button_ok, button_cancel] {
+                Element input_element = _input_field->Render() | border;
                 if (!correct())
                     input_element = input_element | color(Color::Red);
 
