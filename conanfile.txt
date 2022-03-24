@@ -1,5 +1,6 @@
 [requires]
 ftxui/2.0.0
+doxygen/1.9.2
 
 [generators]
 cmake
