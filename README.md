@@ -4,11 +4,9 @@
 
 Для навигации используются стрелки, выход по нажатию `Escape`
 
-## Скрины
+## Демо
 
-![demo1](images/demo1.png)
-
-![demo2](images/demo2.png)
+![demo](images/demo.gif)
 
 ## Пример кода
 
