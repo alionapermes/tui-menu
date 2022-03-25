@@ -10,7 +10,7 @@
 
 
 tuim::Validator
-operator|(const tuim::Validator& lhs, const tuim::Validator& rhs);
+operator|(tuim::Validator lhs, tuim::Validator rhs);
 
 
 namespace tuim {
@@ -20,10 +20,25 @@ Validator
 is_numeric();
 
 Validator
-length_range(size_t minimum, size_t maximum);
+is_integer();
 
 Validator
 in_range(float minimum, float maximum);
+
+Validator
+positive();
+
+Validator
+negative();
+
+Validator
+not_null();
+
+Validator
+length_range(size_t minimum, size_t maximum);
+
+Validator
+wild_text();
 
 
 }

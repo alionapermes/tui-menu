@@ -140,6 +140,17 @@ public: // methods
         return true;
     }
 
+    container_type*
+    get_unit(const std::string& unit)
+    {
+        auto iter = _containers.find(unit);
+
+        if (iter == _containers.end())
+            return nullptr;
+
+        return &iter->second;
+    }
+
     bool
     remove_unit(const std::string& name)
     {

@@ -13,8 +13,9 @@
 #include "ftxui/dom/node.hpp"
 #include "ftxui/screen/color.hpp"
 
-#include "windowbase.hpp"
 #include "types.hpp"
+#include "validators.hpp"
+#include "windowbase.hpp"
 
 
 namespace tuim {
@@ -37,13 +38,8 @@ public: // handlers
     std::function<void()> on_cancel;
 
 public: // ctors
-    InputWindow(
-        string_like auto&& title,
-        string_like auto&& placeholder = ""
-    )
-        : WindowBase(title)
-        , _placeholder(std::forward<decltype(placeholder)>(placeholder))
-    { validator = [] (std::string_view) { return true; }; }
+    InputWindow(string_like auto&& title = "") : WindowBase(title)
+    { validator = wild_text(); }
 
 public: // methods
     bool
@@ -55,12 +51,24 @@ public: // methods
     { return _content; }
 
     const std::string&
+    get_info() const
+    { return _info; }
+
+    void
+    set_info(string_like auto&& text)
+    { _info = std::forward<decltype(text)>(text); }
+
+    const std::string&
     get_placeholder() const
     { return _placeholder; }
 
     void
     set_placeholder(string_like auto&& text)
     { _placeholder = std::forward<decltype(text)>(text); }
+
+    void
+    clear_info()
+    { _info.clear(); }
 
     void
     clear_content()
@@ -73,9 +81,14 @@ public: // methods
     void
     reset()
     {
+        clear_info();
         clear_content();
-        _input_field->TakeFocus();
+        focus_input();
     }
+
+    void
+    focus_input()
+    { _input_field->TakeFocus(); }
 
 private: // methods
     std::function<void()> check_content = [&] {

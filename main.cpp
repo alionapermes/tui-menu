@@ -13,12 +13,15 @@ main()
 {
     tuim::TerminalUserInterface tui;
     tuim::MainWindow<std::vector<int>> mw("main window title");
-    tuim::InputWindow iw_str("input window title", "len [1; 8]");
-    tuim::InputWindow iw_num("number input", "type number [-99; 99]");
+    tuim::InputWindow iw_str("input window title");
+    tuim::InputWindow iw_num("number input");
 
     lid_t mwd     = tui.add_layer(&mw, true);
     lid_t iwd_str = tui.add_layer(&iw_str);
     lid_t iwd_num = tui.add_layer(&iw_num);
+
+    iw_str.set_placeholder("len [1; 8]");
+    iw_num.set_placeholder("type number [-100; 100]");
 
     mw.add_commands({
         {"new unit", [&] {
