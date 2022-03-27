@@ -38,7 +38,8 @@ public: // handlers
     std::function<void()> on_cancel;
 
 public: // ctors
-    InputWindow(string_like auto&& title = "") : WindowBase(title)
+    InputWindow(string_like auto&& title = "")
+        : WindowBase(std::forward<decltype(title)>(title))
     { validator = wild_text(); }
 
 public: // methods
@@ -84,6 +85,15 @@ public: // methods
         clear_info();
         clear_content();
         focus_input();
+    }
+
+    void
+    hard_reset()
+    {
+        validator = wild_text();
+        _title.clear();
+        clear_placeholder();
+        reset();
     }
 
     void

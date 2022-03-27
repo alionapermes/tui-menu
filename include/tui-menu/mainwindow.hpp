@@ -99,7 +99,8 @@ private: // fields
     ScreenInteractive _screen = ScreenInteractive::TerminalOutput();
 
 public: // ctors
-    MainWindow(string_like auto&& title) : WindowBase(title) {}
+    MainWindow(string_like auto&& title)
+        : WindowBase(std::forward<decltype(title)>(title)) {}
 
 public: // methods
     const std::string&
@@ -161,7 +162,7 @@ public: // methods
         _containers.erase(iter);
         
         if (_units.erase(name)) {
-            _unit_name = selected_unit_name();
+            _unit_name.clear();
             return true;
         }
 

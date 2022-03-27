@@ -59,7 +59,7 @@ tuim::Validator
 tuim::positive()
 {
     return [] (std::string_view buffer) -> bool {
-        return std::stof(std::string(buffer)) > 0;
+        return std::stof(std::string(buffer)) >= 0;
     };
 }
 

@@ -156,6 +156,9 @@ public:
     friend std::ostream&
     operator<<(std::ostream& os, const list_v3<value_type>& rhs)
     {
+        if (rhs.empty())
+            return os << "[]";
+
         size_t item_n = 0;
         os << "[ ";
 
@@ -202,17 +205,20 @@ public:
         if (new_cap <= _capacity)
             return;
 
-        if (!_items)
+        if (!_items) // == nullptr
             return allocate(new_cap);
 
-        list_item** old_ptr = _items;
+        size_t first_index  = get_index(_first);
         size_t old_capacity = _capacity;
+        list_item** old_ptr = _items;
         allocate(new_cap);
 
         // копирование указателей на элементы
         for (size_t n = 0; n < old_capacity; n++)
             _items[n] = old_ptr[n];
 
+        _first = _items[first_index];
+        _last  = _first + (_size > 0 ? _size - 1 : 0);
         delete[] old_ptr;
     }
 
@@ -268,9 +274,9 @@ public:
 
     // вставка после позиции
     iterator
-    insert(size_t pos, const_reference value)
+    insert(ssize_t pos, const_reference value)
     {
-        if (pos >= _capacity)
+        if (pos + 1 > _capacity)
             throw std::out_of_range("pos is out of range!");
 
         reserve(_capacity + 1);
@@ -316,9 +322,15 @@ public:
     void
     push_back(const_reference value)
     {
+        if (!_first) {
+            insert(-1, value);
+            return;
+        }
+
         reserve(_capacity + 1);
         replace(_capacity - 1, &value);
         _size++;
+        _last = _items[_size - 1];
     }
 
     void
@@ -328,6 +340,7 @@ public:
         shift(0, _capacity, 1);
         replace(0, &value);
         _size++;
+        _first = _items[0];
     }
 
     iterator

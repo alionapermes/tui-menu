@@ -19,7 +19,7 @@
 class App
 {
 private: // aliases
-    using container_type = list_v3<int>;
+    using container_type = bidir_list<int>;
     using ItemsList      = tuim::MainWindow<container_type>::ItemsList;
 
 private: // fields
@@ -65,39 +65,13 @@ public: // methods
     };
 
     std::function<void()>
-    new_unit_reserved = [this]
-    {
-        using namespace tuim;
-
-        _input_window.reset();
-        _input_window.set_title("Новый контейнер. Объём");
-        _input_window.set_placeholder("объём");
-        _input_window.validator = is_integer() | positive() | not_null();
-        _input_window.on_ok     = [this] {
-            int capacity = std::stoi(_input_window.content());
-
-            _input_window.reset();
-            _input_window.set_title("Новый контейнер. Название");
-            _input_window.set_info("Объём: " + std::to_string(capacity));
-            _input_window.set_placeholder("имя контейнера");
-            _input_window.validator = wild_text();
-
-            _input_window.on_ok = [this, capacity] {
-                _main_window.add_unit(_input_window.content(), capacity);
-                _tui.set_layer(_mwd);
-            };
-        };
-
-        _tui.set_layer(_iwd);
-    };
-
-    std::function<void()>
     new_unit_based = [this]
     {
         _input_window.reset();
         _input_window.set_title(_main_window.selected_command());
         _input_window.set_placeholder("название");
-        _input_window.on_ok = [this] {
+        _input_window.validator = tuim::wild_text();
+        _input_window.on_ok     = [this] {
             auto unit = _main_window.get_unit(_input_window.content());
 
             if (!unit) {
@@ -186,21 +160,6 @@ public: // methods
         try {
             size_t count = _main_window.current_unit().size();
             message      = "Количество элементов: " + std::to_string(count);
-        } catch (const std::runtime_error& re) {
-            message = "Ошибка: " + std::string(re.what());
-        }
-
-        _main_window.set_info(std::move(message));
-    };
-
-    std::function<void()>
-    unit_capacity = [this]
-    {
-        std::string message;
-
-        try {
-            size_t cap = _main_window.current_unit().capacity();
-            message    = "Объём контейнера: " + std::to_string(cap);
         } catch (const std::runtime_error& re) {
             message = "Ошибка: " + std::string(re.what());
         }
@@ -313,41 +272,6 @@ public: // methods
         };
 
         _tui.set_layer(_iwd);
-    };
-
-    std::function<void()>
-    insert_after = [this]
-    {
-        try {
-            by_index_setup("Вставка после индекса");
-        } catch (const std::runtime_error& re) {
-            return _main_window.set_info("Ошибка: " + std::string(re.what()));
-        }
-
-        _input_window.on_ok = [this] {
-            int index = std::stoi(_input_window.content());
-            
-            _input_window.reset();
-            _input_window.set_placeholder("число");
-            _input_window.validator = tuim::is_integer();
-            _input_window.on_ok     = [this, index] {
-                int value = std::stoi(_input_window.content());
-
-                _main_window.set_info(fmt::format(
-                    "Элемент {} вставлен после индекса {}", value, index
-                ));
-                _main_window.current_unit().insert(index, value);
-                _tui.set_layer(_mwd); // ??
-            };
-        };
-
-        _tui.set_layer(_iwd);
-    };
-
-    std::function<void()>
-    erase = [this]
-    {
-        //
     };
 
     std::function<void()>

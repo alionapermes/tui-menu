@@ -27,6 +27,10 @@ if (ADS_L1_V3)
     add_subdirectory(examples/ads-l1-v3)
 endif()
 
+if (ADS_L1_V5)
+    add_subdirectory(examples/ads-l1-v5)
+endif()
+
 add_library(validators STATIC src/tui-menu/validators.cpp)
 
 add_executable(${BIN} ${SRC})
