@@ -10,6 +10,7 @@
 #include "tui-menu/tui.hpp"
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
+#include "tui-menu/navwindow.hpp"
 #include "tui-menu/types.hpp"
 #include "tui-menu/validators.hpp"
 
@@ -19,19 +20,21 @@
 class App
 {
 private: // aliases
-    using container_type = list_v3<int>;
+    using container_type = list_V3<int>;
     using ItemsList      = tuim::MainWindow<container_type>::ItemsList;
 
 private: // fields
     tuim::TerminalUserInterface _tui;
     tuim::MainWindow<container_type> _main_window;
+    tuim::NavWindow<container_type> _nav_window;
     tuim::InputWindow _input_window;
-    lid_t _mwd, _iwd;
+    lid_t _mwd, _iwd, _nwd;
 
 public: // ctors
     App(tuim::string_like auto&& title)
         : _main_window(std::forward<decltype(title)>(title))
-        , _input_window(tuim::InputWindow("Ввод")) {}
+        , _nav_window("Навигация")
+        , _input_window("Ввод") {}
 
 public: // methods
     void
@@ -39,8 +42,10 @@ public: // methods
     {
         _mwd = _tui.add_layer(&_main_window, true);
         _iwd = _tui.add_layer(&_input_window);
+        _nwd = _tui.add_layer(&_nav_window);
 
         _input_window.on_cancel = [this] { _tui.set_layer(_mwd); };
+        _nav_window.on_exit     = [this] { _tui.set_layer(_mwd); };
 
         _tui.render();
     }
@@ -170,9 +175,12 @@ public: // methods
     read_items = [this]
     {
         try {
-            std::stringstream ss;
-            ss << _main_window.current_unit();
-            _main_window.set_info(ss.str());
+            std::string str = "{ ";
+            for (const auto& item : _main_window.current_unit())
+                str += fmt::format("{}, ", item);
+            str += "}";
+
+            _main_window.set_info(str);
         } catch (const std::runtime_error& re) {
             _main_window.set_info("Ошибка: " + std::string(re.what()));
         }
@@ -199,7 +207,7 @@ public: // methods
         std::string message;
 
         try {
-            size_t cap = _main_window.current_unit().capacity();
+            size_t cap = _main_window.current_unit().size();
             message    = "Объём контейнера: " + std::to_string(cap);
         } catch (const std::runtime_error& re) {
             message = "Ошибка: " + std::string(re.what());
@@ -260,28 +268,28 @@ public: // methods
         _tui.set_layer(_iwd);
     };
 
-    std::function<void()>
-    push_front = [this]
-    {
-        _input_window.reset();
-        _input_window.set_title("Вставка в конец");
-        _input_window.set_placeholder("число");
-        _input_window.validator = tuim::is_integer();
-        _input_window.on_ok     = [this] {
-            int num = std::stoi(_input_window.content());
+    /* std::function<void()> */
+    /* push_front = [this] */
+    /* { */
+    /*     _input_window.reset(); */
+    /*     _input_window.set_title("Вставка в конец"); */
+    /*     _input_window.set_placeholder("число"); */
+    /*     _input_window.validator = tuim::is_integer(); */
+    /*     _input_window.on_ok     = [this] { */
+    /*         int num = std::stoi(_input_window.content()); */
 
-            try {
-                _main_window.current_unit().push_front(num);
-                _main_window.set_info("Элемент вставлен");
-            } catch (const std::runtime_error& re) {
-                _main_window.set_info("Ошибка: " + std::string(re.what()));
-            }
+    /*         try { */
+    /*             _main_window.current_unit().push_front(num); */
+    /*             _main_window.set_info("Элемент вставлен"); */
+    /*         } catch (const std::runtime_error& re) { */
+    /*             _main_window.set_info("Ошибка: " + std::string(re.what())); */
+    /*         } */
 
-            _tui.set_layer(_mwd);
-        };
+    /*         _tui.set_layer(_mwd); */
+    /*     }; */
 
-        _tui.set_layer(_iwd);
-    };
+    /*     _tui.set_layer(_iwd); */
+    /* }; */
 
     std::function<void()>
     contains = [this]
@@ -300,7 +308,8 @@ public: // methods
 
             try {
                 message += (
-                    unit.find(item) == unit.end()
+                    std::find(unit.begin(), unit.end(), item) == unit.end()
+                    /* unit.find(item) == unit.end() */
                     ? " не найден"
                     : " содержится в контейнере"
                 );
@@ -316,10 +325,10 @@ public: // methods
     };
 
     std::function<void()>
-    insert_after = [this]
+    insert_before = [this]
     {
         try {
-            by_index_setup("Вставка после индекса");
+            by_index_setup("Вставка перед индексом");
         } catch (const std::runtime_error& re) {
             return _main_window.set_info("Ошибка: " + std::string(re.what()));
         }
@@ -334,9 +343,13 @@ public: // methods
                 int value = std::stoi(_input_window.content());
 
                 _main_window.set_info(fmt::format(
-                    "Элемент {} вставлен после индекса {}", value, index
+                    "Элемент {} вставлен перед индексом {}", value, index
                 ));
-                _main_window.current_unit().insert(index, value);
+                
+                auto pos = _main_window.current_unit().begin();
+                for (int i = 0; i < index; i++)
+                    pos++;
+                _main_window.current_unit().insert(pos, value);
                 _tui.set_layer(_mwd); // ??
             };
         };
@@ -347,7 +360,26 @@ public: // methods
     std::function<void()>
     erase = [this]
     {
-        //
+        try {
+            by_index_setup("Удаление по индексу");
+        } catch (const std::runtime_error& re) {
+            return _main_window.set_info("Ошибка: " + std::string(re.what()));
+        }
+
+        _input_window.on_ok = [this] {
+            int index = std::stoi(_input_window.content());
+            _main_window.set_info(fmt::format(
+                "Удалён элемент по индексу {}", index
+            ));
+            
+            auto pos = _main_window.current_unit().begin();
+            for (int i = 0; i < index; i++)
+                pos++;
+            _main_window.current_unit().erase(pos);
+            _tui.set_layer(_mwd); // ??
+        };
+
+        _tui.set_layer(_iwd);
     };
 
     std::function<void()>
@@ -372,6 +404,18 @@ public: // methods
         };
 
         _tui.set_layer(_iwd);
+    };
+
+    std::function<void()>
+    navigate = [this]
+    {
+        if (_main_window.current_unit().empty())
+            return _main_window.set_info("Контейнер пуст");
+
+        _nav_window.reset();
+        _nav_window.set_container(&_main_window.current_unit());
+
+        _tui.set_layer(_nwd);
     };
 
 private:
