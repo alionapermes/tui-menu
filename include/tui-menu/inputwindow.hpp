@@ -117,13 +117,13 @@ private: // methods
         input_opt.on_enter  = ok_handler;
         input_opt.on_change = check_content;
 
+        Component button_ok     = Button("OK", ok_handler);
+        Component button_cancel = Button("Отмена", on_cancel);
         _input_field            = Input(
             &_content,
             &_placeholder,
             std::move(input_opt)
         );
-        Component button_ok     = Button("OK", ok_handler);
-        Component button_cancel = Button("Отмена", on_cancel);
 
         Component container = Container::Vertical({
             _input_field,
@@ -134,9 +134,9 @@ private: // methods
         });
         Component renderer  = Renderer(container,
             [this, button_ok, button_cancel] {
-                Element input_element = _input_field->Render() | border;
-                if (!correct())
-                    input_element = input_element | color(Color::Red);
+                Element input_element = _input_field->Render()
+                    | border
+                    | color(correct() ? Color::Green : Color::Red);
 
                 return window(text(_title) | center,
                     vbox({
