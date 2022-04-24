@@ -7,22 +7,6 @@ main()
     App app("ЛР №1, В-3. Баранова В., Обидиентов А.");
 
     app.add_commands({
-        /* {"New container",                   app.new_unit_empty   }, */
-        /* {"New with capacity", app.new_unit_reserved}, */
-        /* {"New based", app.new_unit_based   }, */
-        /* {"Read by index",         app.read_by_index    }, */
-        /* {"Write by index",         app.write_by_index   }, */
-        /* {"Output",          app.read_items       }, */
-        /* {"Size",   app.items_count      }, */
-        /* {"Capacity",                    app.unit_capacity    }, */
-        /* {"Is empty",      app.unit_is_empty    }, */
-        /* {"Clear",                  app.unit_clear       }, */
-        /* {"Push back",       app.push_back        }, */
-        /* {"Find (exists)",   app.contains         }, */
-        /* {"Insert before",              app.insert_before    }, */
-        /* {"Erase by index",                 app.erase            }, */
-        /* {"Navigate",             app.navigate         }, */
-        /* {"Remove container",                 app.unit_remove      }, */
         {"Создать контейнер",                   app.new_unit_empty   },
         {"Создать контейнер с резервированием", app.new_unit_reserved},
         {"Создать контейнер на основе другого", app.new_unit_based   },
