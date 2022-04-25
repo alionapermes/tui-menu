@@ -540,6 +540,34 @@ public: // methods
     rend() const
     { return const_reverse_iterator(begin()); }
 
+#ifdef MERGE
+    void
+    merge(const bst& other)
+    {
+        bst<int> tmp;
+        auto it1 = begin();
+        auto it2 = other.begin();
+
+        for (;
+            it1 != end() && it2 != other.end();
+            ++it1, ++it2
+        ) {
+            tmp.insert(*it1);
+            tmp.insert(*it2);
+        }
+
+        if (it1 == end()) {
+            for (; it2 != other.end(); ++it2)
+                tmp.insert(*it2);
+        } else if (it2 == end()) {
+            for (; it1 != other.end(); ++it1)
+                tmp.insert(*it1);
+        }
+
+        *this = tmp;
+    }
+#endif
+
 private:
 #ifdef RECURSIVE
     template <typename Iterator> requires

@@ -1,11 +1,12 @@
 /* #define TLR */
 #define LRT
 /* #define LTR */
-/* #define ITERATIVE */
-#define RECURSIVE
+#define ITERATIVE
+/* #define RECURSIVE */
 /* #define COUNT_MORE_THAN */
-#define BALANCE_FACTOR
+/* #define BALANCE_FACTOR */
 /* #define INDEX_OF */
+#define MERGE
 
 #ifdef TLR
     #define SCHEME "t -> L -> R"
@@ -21,7 +22,7 @@
 int                                                                     
 main()                                                                  
 {                                                                       
-    App app("ЛР №2, В-5. Обидиентов А., Баранова В.");
+    App app("ЛР №2, В-8. Шаповаленко В., Попов П.");
 
     app.add_commands({
         {"Создать контейнер",                   app.new_unit_empty   },
@@ -42,6 +43,9 @@ main()
 #endif
 #ifdef INDEX_OF
         {"Порядковый номер элемента",           app.index_of         },
+#endif
+#ifdef MERGE
+        {"Объединение двух деревьев",           app.merge            },
 #endif
         {"Навигация по контейнеру",             app.navigate         },
         {"Удаление контейнера",                 app.unit_remove      },

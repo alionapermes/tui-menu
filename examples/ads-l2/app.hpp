@@ -366,6 +366,36 @@ public: // methods
     };
 #endif
 
+#ifdef MERGE
+    std::function<void()>
+    merge = [this]
+    {
+        _input_window.reset();
+        _input_window.set_title("Объединение контейнеров");
+        _input_window.set_placeholder("имя второго контейнера");
+        _input_window.validator = tuim::wild_text();
+        _input_window.on_ok     = [this] {
+            const std::string& name = _input_window.content();
+            std::string message     = "Контейнер " + name;
+            
+            try {
+                auto src_unit = _main_window.get_unit(name);
+                if (src_unit == nullptr)
+                    message = "Нет такого контейнера";
+                else
+                    _main_window.current_unit().merge(*src_unit);
+            } catch (const std::runtime_error& re) {
+                message = fmt::format("Ошибка: {}", re.what());
+            }
+
+            _main_window.set_info(std::move(message));
+            _tui.set_layer(_mwd);
+        };
+
+        _tui.set_layer(_iwd);
+    };
+#endif
+
 private:
     void
     by_index_setup(tuim::string_like auto&& title)
