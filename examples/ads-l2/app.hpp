@@ -266,6 +266,7 @@ public: // methods
         _tui.set_layer(_nwd);
     };
 
+#ifdef COUNT_MORE_THAN
     std::function<void()>
     count_more_than = [this]
     {
@@ -290,7 +291,9 @@ public: // methods
 
         _tui.set_layer(_iwd);
     };
+#endif
 
+#ifdef BALANCE_FACTOR
     std::function<void()>
     balance_factor = [this]
     {
@@ -308,6 +311,7 @@ public: // methods
             _main_window.set_info("Ошибка: " + std::string(re.what()));
         }
     };
+#endif
 
     std::function<void()>
     output = [this]
@@ -325,6 +329,7 @@ public: // methods
         }
     };
 
+#ifdef INDEX_OF
     std::function<void()>
     index_of = [this]
     {
@@ -350,6 +355,7 @@ public: // methods
 
         _tui.set_layer(_iwd);
     };
+#endif
 
 private:
     void

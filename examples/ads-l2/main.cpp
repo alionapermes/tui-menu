@@ -1,10 +1,11 @@
-#define TLR
-/* #define LRT */
+/* #define TLR */
+#define LRT
 /* #define LTR */
-#define ITERATIVE
-#define COUNT_MORE_THAN
+/* #define ITERATIVE */
+#define RECURSIVE
+/* #define COUNT_MORE_THAN */
 #define BALANCE_FACTOR
-#define INDEX_OF
+/* #define INDEX_OF */
 
 #ifdef TLR
     #define SCHEME "t -> L -> R"
