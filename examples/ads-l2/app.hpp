@@ -218,8 +218,12 @@ public: // methods
             int value = std::stoi(_input_window.content());
 
             try {
-                auto iter = _main_window.current_unit().find(value);
-                _main_window.current_unit().erase(iter);
+                auto& unit = _main_window.current_unit();
+                auto iter = unit.find(value);
+                if (iter == unit.end())
+                    _main_window.set_info("Нет такого элемента");
+                else
+                    _main_window.current_unit().erase(iter);
             } catch (const std::runtime_error& re) {
                 _main_window.set_info("Ошибка: " + std::string(re.what()));
             }
@@ -341,11 +345,16 @@ public: // methods
             int value = std::stoi(_input_window.content());
 
             try {
-                size_t n = _main_window.current_unit().index_of(value) + 1;
-                _main_window.set_info(fmt::format(
-                    "Порядковый номер элемента {} равен {}",
-                    value, n
-                ));
+                auto& unit = _main_window.current_unit();
+                size_t n = .index_of(value) + 1;
+                if (n > unit.size())
+                    _main_window.set_info("Нет такого элемента");
+                else {
+                    _main_window.set_info(fmt::format(
+                        "Порядковый номер элемента {} равен {}",
+                        value, n
+                    ));
+                }
             } catch (const std::runtime_error& re) {
                 _main_window.set_info("Ошибка: " + std::string(re.what()));
             }

@@ -397,7 +397,7 @@ public: // methods
 #if defined TLR || defined LRT
     std::vector<value_type>
     output() const
-    { return __output(_root); }
+    { return __output(_root, true); }
 #endif
 
 #if defined INDEX_OF || defined COUNT_MORE_THAN
@@ -618,9 +618,11 @@ private:
 #endif
 
     std::vector<value_type>
-    __output(node_type* node) const
+    __output(node_type* node, bool first = false) const
     {
         static std::vector<value_type> items;
+        if (first)
+            items.clear();
         items.reserve(size());
 
         if (node != nullptr) {
