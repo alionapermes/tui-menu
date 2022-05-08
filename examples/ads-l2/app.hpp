@@ -346,7 +346,7 @@ public: // methods
 
             try {
                 auto& unit = _main_window.current_unit();
-                size_t n = .index_of(value) + 1;
+                size_t n   = unit.index_of(value) + 1;
                 if (n > unit.size())
                     _main_window.set_info("Нет такого элемента");
                 else {
@@ -389,6 +389,39 @@ public: // methods
             }
 
             _main_window.set_info(std::move(message));
+            _tui.set_layer(_mwd);
+        };
+
+        _tui.set_layer(_iwd);
+    };
+#endif
+
+#ifdef GREATER_TO_ROOT
+    std::function<void()>
+    greater_to_root = [this]
+    {
+        _input_window.reset();
+        _input_window.set_title("Ввод элемента");
+        _input_window.set_placeholder("число");
+        _input_window.validator = tuim::is_integer();
+        _input_window.on_ok     = [this] {
+            int value = std::stoi(_input_window.content());
+
+            try {
+                auto& unit = _main_window.current_unit();
+                auto iter  = unit.greater_to_root(value);
+
+                if (iter == unit.end())
+                    _main_window.set_info("Элемента больше заданного нет");
+                else {
+                    _main_window.set_info(fmt::format(
+                        "Теперь корневой элемент равен {}", *iter
+                    ));
+                }
+            } catch (const std::runtime_error& re) {
+                _main_window.set_info("Ошибка: " + std::string(re.what()));
+            }
+
             _tui.set_layer(_mwd);
         };
 

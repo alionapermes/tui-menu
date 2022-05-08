@@ -380,21 +380,7 @@ public: // methods
         delete node;
     }
 
-#ifdef LTR
-    std::vector<value_type>
-    output() const
-    {
-        std::vector<value_type> items;
-        items.reserve(size());
-
-        for (const auto& item : *this)
-            items[items.size()];
-
-        return items;
-    }
-#endif
-
-#if defined TLR || defined LRT
+#if defined TLR || defined LRT || defined LTR
     std::vector<value_type>
     output() const
     { return __output(_root, true); }
@@ -544,27 +530,37 @@ public: // methods
     void
     merge(const bst& other)
     {
-        bst<int> tmp;
-        auto it1 = begin();
-        auto it2 = other.begin();
+        for (const auto& item : other)
+            insert(other);
+    }
+#endif
 
-        for (;
-            it1 != end() && it2 != other.end();
-            ++it1, ++it2
-        ) {
-            tmp.insert(*it1);
-            tmp.insert(*it2);
+#ifdef GREATER_TO_ROOT
+    template <typename Val> requires std::is_convertible_v<Val, value_type>
+    iterator
+    greater_to_root(Val&& value)
+    {
+        auto iter = find(std::forward<value_type>(value));
+
+        if (iter == end() || ++iter == end())
+            return end();
+
+        if (iter._node->_value > _root->_value) {
+            node_type* leftest = get_first(iter._node);
+            leftest->_parent   = _base;
+            leftest->_left     = _root;
+            _root->_parent     = leftest;
+            _root->_right      = nullptr;
+        } else {
+            node_type* rightest = get_last(iter._node);
+            rightest->_parent   = _base;
+            rightest->_right    = _root;
+            _root->_parent      = rightest;
+            _root->_left        = nullptr;
         }
 
-        if (it1 == end()) {
-            for (; it2 != other.end(); ++it2)
-                tmp.insert(*it2);
-        } else if (it2 == end()) {
-            for (; it1 != other.end(); ++it1)
-                tmp.insert(*it1);
-        }
-
-        *this = tmp;
+        _root = iter._node;
+        return iterator(_root);
     }
 #endif
 
@@ -660,6 +656,11 @@ private:
 
             if (node->_left != nullptr)
                 __output(node->_left);
+
+#ifdef LTR
+            items.push_back(node->_value);
+#endif
+
             if (node->_right != nullptr)
                 __output(node->_right);
 

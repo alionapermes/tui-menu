@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(tui-menu VERSION 0.3.0)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include_directories(${CMAKE_CURRENT_DIR} include)
 
 include(FetchContent)
