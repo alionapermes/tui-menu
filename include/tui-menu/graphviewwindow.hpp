@@ -71,20 +71,13 @@ private:
     Component
     renderer() override
     {
-        Component button_exit = Button("Выход", on_exit);
-
-        Component container = Container::Horizontal({
-            button_exit
+        Component renderer  = Renderer(Container::Horizontal({}), [this] {
+            return window(text(_title) | center,
+                vbox({
+                    canvas(_gv) | flex,
+                })
+            );
         });
-        Component renderer  = Renderer(container,
-            [this, button_exit] {
-                return window(text(_title) | center,
-                    vbox({
-                        canvas(_gv) | flex,
-                    })
-                );
-            }
-        );
 
         return renderer;
     }
