@@ -7,6 +7,7 @@
 
 #include "fmt/core.h"
 
+#include "tui-menu/graphviewwindow.hpp"
 #include "tui-menu/tui.hpp"
 #include "tui-menu/inputwindow.hpp"
 #include "tui-menu/mainwindow.hpp"
@@ -20,21 +21,25 @@
 class App
 {
 private: // aliases
-    using container_type = bst<int>;
+    using value_type     = int;
+    using container_type = bst<value_type>;
     using ItemsList      = tuim::MainWindow<container_type>::ItemsList;
 
 private: // fields
     tuim::TerminalUserInterface _tui;
     tuim::MainWindow<container_type> _main_window;
     tuim::NavWindow<container_type> _nav_window;
+    tuim::GraphViewWindow<value_type> _gv_window;
     tuim::InputWindow _input_window;
-    lid_t _mwd, _iwd, _nwd;
+    lid_t _mwd, _iwd, _nwd, _gwd;
 
 public: // ctors
     App(tuim::string_like auto&& title)
         : _main_window(std::forward<decltype(title)>(title))
         , _nav_window("Навигация")
-        , _input_window("Ввод") {}
+        , _gv_window("Обзор контейнера")
+        , _input_window("Ввод")
+    {}
 
 public: // methods
     void
@@ -42,9 +47,11 @@ public: // methods
     {
         _mwd = _tui.add_layer(&_main_window, true);
         _iwd = _tui.add_layer(&_input_window);
+        _gwd = _tui.add_layer(&_gv_window);
         _nwd = _tui.add_layer(&_nav_window);
 
         _input_window.on_cancel = [this] { _tui.set_layer(_mwd); };
+        _gv_window.on_exit      = [this] { _tui.set_layer(_mwd); };
         _nav_window.on_exit     = [this] { _tui.set_layer(_mwd); };
 
         _tui.render();
@@ -320,17 +327,22 @@ public: // methods
     std::function<void()>
     output = [this]
     {
-        try {
-            std::string info = "{ ";
+        auto builder = [](const tuim::IGraphNode<value_type>* node) {
+            std::string str;
+            auto keys = node->keys();
 
-            for (auto& item : _main_window.current_unit().output())
-                info += std::to_string(item) + ", ";
-            info += "}";
+            for (size_t n = 0; n < keys.size(); ++n)
+                str += std::to_string(*keys[n]);
 
-            _main_window.set_info(info);
-        } catch (const std::runtime_error& re) {
-            _main_window.set_info("Ошибка: " + std::string(re.what()));
-        }
+            return str;
+        };
+
+        _gv_window.node_builder = builder;
+        _gv_window.init_canvas(_tui.width(), _tui.height());
+        _gv_window.set_graph(&_main_window.current_unit());
+        _gv_window.build_canvas();
+
+        _tui.set_layer(_gwd);
     };
 
 #ifdef INDEX_OF

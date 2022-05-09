@@ -53,6 +53,14 @@ public: // methods
     set_main_layer(lid_t lid)
     { _lid_main = lid; }
 
+    inline int
+    width() const
+    { return _screen.dimx(); }
+
+    inline int
+    height() const
+    { return _screen.dimy(); }
+
     void
     render()
     {

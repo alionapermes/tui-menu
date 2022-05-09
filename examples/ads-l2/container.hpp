@@ -6,9 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "tui-menu/graphviewwindow.hpp"
+
 
 template <typename Key = int, typename Compare = std::less<Key>>
-class bst
+class bst : public tuim::IGraphExportable<Key>
 {
 public: // definitions
     struct bst_iterator;
@@ -147,7 +149,7 @@ public:
     };
 
 private:
-    struct node
+    struct node : public tuim::IGraphNode<value_type>
     {
         friend bst;
 
@@ -172,7 +174,15 @@ private:
             , _right(right)
         {}
 
-    public: // operators
+    public:
+        std::vector<const_pointer>
+        keys() const override
+        { return {&_value}; }
+
+        std::vector<const tuim::IGraphNode<value_type>*>
+        nodes() const override
+        { return {_left, _right}; }
+
         auto
         operator<=>(const node& other) const
         { return _value <=> other._value; }
@@ -237,6 +247,10 @@ public: // operators
     }
 
 public: // methods
+    const tuim::IGraphNode<Key>*
+    export_start_node() const override
+    { return _root; }
+
     template <typename Val> requires std::is_convertible_v<Val, value_type>
     iterator
     insert(Val&& value)
