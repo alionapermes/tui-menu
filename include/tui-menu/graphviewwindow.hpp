@@ -31,12 +31,17 @@ struct IGraphNode
     nodes() const = 0;
 };
 
+template <typename T>
+using IGraphNodePtrs = std::vector<const tuim::IGraphNode<T>*>;
+
+
 template <typename Key>
 struct IGraphExportable
 {
     virtual const IGraphNode<Key>*
     export_start_node() const = 0;
 };
+
 
 template <typename Key>
 class GraphViewWindow : public WindowBase
@@ -93,7 +98,7 @@ private:
         int mid  = x0 + (w >> 1);
         int quad = _one >> 2;
 
-        _gv.DrawText(mid, y, std::move(content));
+        _gv.DrawText(mid - content.length(), y, std::move(content));
 
 
         int offset = x0 + step;
