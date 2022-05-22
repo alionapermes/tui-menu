@@ -28,7 +28,7 @@ private: // properties
     Component _button_prev;
     Component _button_next;
     Component _button_exit;
-    typename T::iterator _pos, _last;
+    typename T::iterator _pos;
     T* _container = nullptr;
 
 public:
@@ -68,7 +68,6 @@ public: // methods
     {
         _container = container;
         _pos       = _container->begin();
-        _last      = _container->rbegin();
     }
 
 private:
@@ -80,7 +79,7 @@ private:
                 --_pos;
         });
         _button_next = Button("Вперёд", [this] {
-            if (_pos != _container->rbegin())
+            if (_pos != _container->rbegin().base())
                 ++_pos;
         });
         _button_exit = Button("Закрыть", on_exit);
@@ -99,7 +98,7 @@ private:
                 : Color::Green
             );
             Element b_next = _button_next->Render() | color(
-                _pos == _container->rbegin()
+                _pos == _container->rbegin().base()
                 ? Color::Red
                 : Color::Green
             );

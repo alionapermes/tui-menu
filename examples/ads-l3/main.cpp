@@ -1,4 +1,5 @@
-#define ITERATIVE
+/* #define ITERATIVE */
+#define RECURSIVE
 
 #include "app.hpp"
 
@@ -6,7 +7,7 @@
 int                                                                     
 main()                                                                  
 {                                                                       
-    App app("ЛР №4, В-6. Москвин Т., Хейнов В.");
+    App app("ЛР №4, В-5. Москвичёв С., Розин М.");
 
     app.add_commands({
         {"Создать контейнер",                   app.new_unit_empty   },

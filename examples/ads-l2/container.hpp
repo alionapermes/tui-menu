@@ -526,7 +526,7 @@ public: // methods
 
     reverse_iterator
     rbegin()
-    { return reverse_iterator(end()); }
+    { return reverse_iterator(--end()); }
 
     reverse_iterator
     rend()

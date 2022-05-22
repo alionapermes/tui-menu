@@ -624,13 +624,13 @@ public:
     end()
     { return iterator(nullptr, 0); }
 
-    iterator
+    reverse_iterator
     rbegin()
     {
         if (empty())
-            return end();
+            return reverse_iterator(end());
         node_type* rightest = root_->get_rightest();
-        return iterator(rightest, rightest->size() - 1);
+        return reverse_iterator(iterator(rightest, rightest->size() - 1));
     }
 
     iterator
