@@ -12,6 +12,9 @@
 tuim::Validator
 operator|(tuim::Validator lhs, tuim::Validator rhs);
 
+tuim::Validator
+operator|=(tuim::Validator& lhs, tuim::Validator rhs);
+
 
 namespace tuim {
 

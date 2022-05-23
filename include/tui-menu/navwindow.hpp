@@ -23,16 +23,19 @@ template <typename T>
 class NavWindow : public WindowBase
 {
 private: // properties
+    using iterator = typename T::iterator;
+
     std::string _info;
     std::string _content;
     Component _button_prev;
     Component _button_next;
     Component _button_exit;
-    typename T::iterator _pos;
+    iterator _pos;
     T* _container = nullptr;
 
 public:
     std::function<void()> on_exit;
+    std::function<void(iterator)> on_change = [](iterator){};
 
 public: // ctors
     NavWindow(string_like auto&& title = "")
@@ -68,6 +71,7 @@ public: // methods
     {
         _container = container;
         _pos       = _container->begin();
+        on_change(_pos);
     }
 
 private:
@@ -75,12 +79,16 @@ private:
     renderer() override
     {
         _button_prev = Button("Назад", [this] {
-            if (_pos != _container->begin())
+            if (_pos != _container->begin()) {
                 --_pos;
+                on_change(_pos);
+            }
         });
         _button_next = Button("Вперёд", [this] {
-            if (_pos != _container->rbegin().base())
+            if (_pos != _container->rbegin().base()) {
                 ++_pos;
+                on_change(_pos);
+            }
         });
         _button_exit = Button("Закрыть", on_exit);
 
@@ -103,13 +111,19 @@ private:
                 : Color::Green
             );
 
+            Element item;
+            if constexpr (std::is_same_v<typename T::value_type, std::string>)
+                item = text(*_pos);
+            else
+                item = text(std::to_string(*_pos));
+
             return window(text(_title) | center,
                 vbox({
                     text(_info),
                     separator(),
                     hbox({
                         b_prev,
-                        text(std::to_string(*_pos))
+                        item
                             | center
                             | border
                             | flex

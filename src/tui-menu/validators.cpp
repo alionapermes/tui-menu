@@ -10,6 +10,15 @@ operator|(tuim::Validator lhs, tuim::Validator rhs)
 }
 
 tuim::Validator
+operator|=(tuim::Validator& lhs, tuim::Validator rhs)
+{
+    lhs = [lhs, rhs] (std::string_view buffer) -> bool {
+        return (lhs(buffer) && rhs(buffer));
+    };
+    return lhs;
+}
+
+tuim::Validator
 tuim::is_numeric()
 {
     return [] (std::string_view buffer) -> bool {
