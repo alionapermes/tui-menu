@@ -173,14 +173,17 @@ public:
         }
 
         iterator iter;
+        std::pair<iterator, bool> res;
 
 #ifdef LINEAR
-        iter = linear_insert(value);
+        res  = linear_insert(value);
+        iter = res.first;
 #elif defined QUADRATIC
-        iter = quadratic_insert(value);
+        res  = quadratic_insert(value);
+        iter = res.first;
 #endif
 
-        if (iter != end())
+        if (iter != end() && res.second)
             ++_size;
         return iter;
     }
@@ -264,23 +267,23 @@ public:
     }
 
 #ifdef LINEAR
-    iterator
+    std::pair<iterator, bool>
     linear_insert(reference value, size_type try_n = 0)
     {
         size_type index = get_hash(value) + try_n;
 
         if (index >= _cap)
-            return end();
+            return std::make_pair(end(), false);
 
         if (_data[index].state() == item_state::empty) {
             _data[index].set(value);
-            return iterator(_data + index);
+            return std::make_pair(iterator(_data + index), true);
         }
 
         if (_data[index].value() == value) {
             if (_data[index].state() == item_state::unused)
                 _data[index].set_state(item_state::used);
-            return iterator(_data + index);
+            return std::make_pair(iterator(_data + index), false);
         }
 
         return linear_insert(value, try_n + 1);

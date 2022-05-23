@@ -258,7 +258,13 @@ public: // methods
 #else
                 uint64_t value = std::stoul(_input_window.content());
 #endif
-                _main_window.current_unit().insert(value);
+                auto iter = _main_window.current_unit().insert(value);
+                if (iter == _main_window.current_unit().end())
+                    _main_window.set_info("Элемент не может быть вставлен");
+                else
+                    _main_window.set_info(fmt::format(
+                        "Вставлен элемент: {}", *iter
+                    ));
             } catch (const std::runtime_error& re) {
                 _main_window.set_info("Ошибка: " + std::string(re.what()));
             } catch (const std::invalid_argument& ia) {
@@ -301,8 +307,12 @@ public: // methods
                 auto iter = unit.find(value);
                 if (iter == unit.end())
                     _main_window.set_info("Нет такого элемента");
-                else
+                else {
                     _main_window.current_unit().erase(iter);
+                    _main_window.set_info(fmt::format(
+                        "Элемент {} удалён", *iter
+                    ));
+                }
             } catch (const std::runtime_error& re) {
                 _main_window.set_info("Ошибка: " + std::string(re.what()));
             }
