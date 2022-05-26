@@ -304,7 +304,7 @@ public:
         return linear_find(value, try_n + 1);
     }
 #elif defined QUADRATIC
-    iterator
+    std::pair<iterator, bool>
     quadratic_insert(reference value, size_t try_n = 0)
     {
         static const int c1 = 3;
@@ -314,13 +314,20 @@ public:
             (get_hash(value) + (c1 * try_n) + (c2 * try_n * try_n)) % _cap;
 
         if (index >= _cap)
-            return end();
+            return std::make_pair(end(), false);
 
-        if (_data[index].state() != item_state::empty)
-            return quadratic_insert(value, try_n + 1);
+        if (_data[index].state() == item_state::empty) {
+            _data[index].set(value);
+            return std::make_pair(iterator(_data + index), true);
+        }
 
-        _data[index].set(value);
-        return iterator(_data + index);
+        if (_data[index].value() == value) {
+            if (_data[index].state() == item_state::unused)
+                _data[index].set_state(item_state::used);
+            return std::make_pair(iterator(_data + index), false);
+        }
+
+        return quadratic_insert(value, try_n + 1);
     }
 
     size_type

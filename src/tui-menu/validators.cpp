@@ -47,7 +47,7 @@ tuim::is_integer()
 {
     return [] (std::string_view buffer) -> bool {
         try {
-            int num = std::stoi(std::string(buffer));
+            long long int num = std::stoll(std::string(buffer));
             return (std::to_string(num) == buffer);
         } catch (const std::invalid_argument&) {
             return false;
