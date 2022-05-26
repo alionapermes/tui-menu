@@ -1,13 +1,12 @@
-/* #define ITERATIVE */
 #define RECURSIVE
 
-#include "app.hpp"
+#include "randtree-app.hpp"
 
 
 int                                                                     
 main()                                                                  
 {                                                                       
-    App app("ЛР №4, В-5. Москвичёв С., Розин М.");
+    App app("ЛР №3, В-7. Баранова В., Обидиентов А.");
 
     app.add_commands({
         {"Создать контейнер",                   app.new_unit_empty   },

@@ -66,7 +66,7 @@ public:
 
     void
     init_canvas(int w, int h)
-    { _gv = Canvas(w, h * 2); }
+    { _gv = Canvas(w * 1.5, h * 3); }
 
     void
     build_canvas()
@@ -90,6 +90,9 @@ private:
     void
     build_graph(const IGraphNode<Key>* node, int x0, int x1, int depth = 1)
     {
+        if (node == nullptr)
+            return;
+
         std::string content = node_builder(node);
 
         int w    = x1 - x0;
