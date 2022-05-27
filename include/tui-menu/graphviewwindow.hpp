@@ -70,7 +70,13 @@ public:
 
     void
     build_canvas()
-    { build_graph(_graph->export_start_node(), 0, _gv.width()); }
+    {
+        auto start_node = _graph->export_start_node();
+        if (start_node == nullptr)
+            return;
+
+        build_graph(start_node, 0, _gv.width());
+    }
 
 private:
     Component
@@ -90,9 +96,6 @@ private:
     void
     build_graph(const IGraphNode<Key>* node, int x0, int x1, int depth = 1)
     {
-        if (node == nullptr)
-            return;
-
         std::string content = node_builder(node);
 
         int w    = x1 - x0;
@@ -112,9 +115,9 @@ private:
 
                 _gv.DrawPointLine(mid, y + quad, new_mid, y + _one - quad);
                 build_graph(sub, offset - step, offset, depth + 1);
-
-                offset += step;
             }
+
+            offset += step;
         }
     }
 };
