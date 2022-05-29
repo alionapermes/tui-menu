@@ -30,7 +30,7 @@
     #define MODULE
     #define QUADRATIC
 #endif
-#ifdef V8
+#if defined V2 || defined V8
     #define HORNER
     #define MULTIPLICATIVE
     #define LINEAR

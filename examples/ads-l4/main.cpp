@@ -1,6 +1,7 @@
+#define V2
 /* #define V3 */
 /* #define V4 */
-#define V7
+/* #define V7 */
 /* #define V8 */
 #include "app.hpp"
 
@@ -8,7 +9,7 @@
 int                                                              
 main()                                                                  
 {                                                                       
-    App app("ЛР №4, В-7. Моквичёв С.");
+    App app("ЛР №4, В-2. Попов П., Шаповаленко В.");
 
     app.add_commands({
         {"Создать контейнер",                   app.new_unit_empty   },
